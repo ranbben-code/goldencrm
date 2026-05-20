@@ -307,6 +307,7 @@ tr:hover .td-acts{opacity:1}
 
 @keyframes spin { to { transform: rotate(360deg) } }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
 <div class="app">
@@ -793,30 +794,38 @@ function go(t) {
 }
 
 
-// ══ SUPABASE CONFIG ══
+// ══ SUPABASE via official JS SDK ══
 const SUPA_URL = 'https://roxeqjunkudhsricevhj.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJveGVxanVua3VkaHNyaWNldmhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM0MzAsImV4cCI6MjA5NDg1OTQzMH0._h_9TL4mNw-J7Kqf1l5elwnrd6WKgqHIUB4javzQ-OI';
 
-async function sbReq(method, table, body=null, id=null) {
-  const base = `${SUPA_URL}/rest/v1/${table}`;
-  const url = id ? `${base}?id=eq.${id}` : base;
-  const opts = {
-    method,
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
-    },
-    body: body ? JSON.stringify(body) : null
-  };
-  const res = await fetch(url, opts);
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`Supabase ${method} ${table}: ${txt}`);
-  }
-  const txt = await res.text();
-  return txt ? JSON.parse(txt) : [];
+// Use the official Supabase JS client loaded via CDN
+let _sb = null;
+function getSB() {
+  if (!_sb) _sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  return _sb;
+}
+
+async function sbGet(table) {
+  const { data, error } = await getSB().from(table).select('*').order('id');
+  if (error) throw error;
+  return data || [];
+}
+
+async function sbInsert(table, item) {
+  const { data, error } = await getSB().from(table).insert(item).select();
+  if (error) throw error;
+  return data[0];
+}
+
+async function sbUpdate(table, id, item) {
+  const { data, error } = await getSB().from(table).update(item).eq('id', id).select();
+  if (error) throw error;
+  return data[0];
+}
+
+async function sbDelete(table, id) {
+  const { error } = await getSB().from(table).delete().eq('id', id);
+  if (error) throw error;
 }
 
 function showLoader(on) {
@@ -825,13 +834,10 @@ function showLoader(on) {
     el = document.createElement('div');
     el.id = '__loader';
     el.style.cssText = 'position:fixed;inset:0;background:rgba(246,247,251,.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:Figtree,sans-serif';
-    el.innerHTML = `
-      <div style="width:42px;height:42px;border:3px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite"></div>
-      <span style="font-size:14px;font-weight:700;color:var(--text2)">טוען נתונים מהענן...</span>
-    `;
+    el.innerHTML = `<div style="width:42px;height:42px;border:3px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite"></div><span style="font-size:14px;font-weight:700;color:var(--text2)">טוען נתונים מהענן...</span>`;
     document.body.appendChild(el);
   } else if (!on && el) {
-    el.style.opacity='0';el.style.transition='opacity .3s';
+    el.style.opacity='0'; el.style.transition='opacity .3s';
     setTimeout(()=>el.remove(), 300);
   }
 }
@@ -840,90 +846,60 @@ async function loadFromCloud() {
   showLoader(true);
   try {
     const [leads, projects, clients, expenses] = await Promise.all([
-      sbReq('GET','leads?order=created_at'),
-      sbReq('GET','projects?order=created_at'),
-      sbReq('GET','clients?order=created_at'),
-      sbReq('GET','expenses?order=created_at'),
+      sbGet('leads'), sbGet('projects'), sbGet('clients'), sbGet('expenses')
     ]);
-    D.leads = leads||[]; D.projects = projects||[];
-    D.clients = clients||[]; D.expenses = expenses||[];
+    D.leads=leads; D.projects=projects; D.clients=clients; D.expenses=expenses;
     sv();
-    console.log('Loaded from Supabase ✓', {leads:D.leads.length, projects:D.projects.length, clients:D.clients.length, expenses:D.expenses.length});
+    console.log('✓ Supabase loaded', {leads:leads.length, projects:projects.length, clients:clients.length, expenses:expenses.length});
   } catch(e) {
-    console.warn('Supabase load failed, using localStorage:', e.message);
-    toast('מצב אופליין - נתונים מקומיים','e');
+    console.warn('Supabase failed, using localStorage:', e.message);
+    toast('מצב אופליין — נתונים מקומיים','e');
   }
   showLoader(false);
   go('leads');
 }
 
-// ── OVERRIDE saveItem with Supabase ──
 async function saveItem() {
   const name = document.getElementById('fn')?.value.trim();
   if (!name) { toast('נדרש שם!','e'); return; }
   const v = parseFloat(document.getElementById('fv')?.value)||0;
   const tbl = tab==='expenses' ? 'expenses' : tab;
-
   let item;
   if (tab==='expenses') {
-    item = {
-      name,
-      vendor: document.getElementById('fvn')?.value||'',
-      category: document.getElementById('fcat')?.value||'אחר',
-      value: v,
-      date: document.getElementById('fd')?.value||'',
-      notes: document.getElementById('fno')?.value||''
-    };
+    item = { name, vendor:document.getElementById('fvn')?.value||'', category:document.getElementById('fcat')?.value||'אחר', value:v, date:document.getElementById('fd')?.value||'', notes:document.getElementById('fno')?.value||'' };
   } else {
-    item = {
-      name,
-      company: document.getElementById('fco')?.value||'',
-      status: document.getElementById('fs')?.value||CFG[tab].statuses[0],
-      value: v,
-      priority: document.getElementById('fp')?.value||'',
-      date: document.getElementById('fd')?.value||'',
-      owner: document.getElementById('fow')?.value||'רן',
-      phone: document.getElementById('fph')?.value||'',
-      email: document.getElementById('fem')?.value||'',
-      contact: document.getElementById('fct')?.value||'',
-      city: document.getElementById('fci')?.value||'',
-      progress: parseInt(document.getElementById('fpr')?.value)||0,
-      notes: document.getElementById('fno')?.value||''
-    };
+    item = { name, company:document.getElementById('fco')?.value||'', status:document.getElementById('fs')?.value||CFG[tab].statuses[0], value:v, priority:document.getElementById('fp')?.value||'', date:document.getElementById('fd')?.value||'', owner:document.getElementById('fow')?.value||'רן', phone:document.getElementById('fph')?.value||'', email:document.getElementById('fem')?.value||'', contact:document.getElementById('fct')?.value||'', city:document.getElementById('fci')?.value||'', progress:parseInt(document.getElementById('fpr')?.value)||0, notes:document.getElementById('fno')?.value||'' };
   }
-
   try {
     let saved;
     if (eId) {
-      const res = await sbReq('PATCH', tbl, item, eId);
-      saved = res && res[0] ? res[0] : {...item, id:eId};
+      saved = await sbUpdate(tbl, eId, item);
+      if (!saved) saved = {...item, id:eId};
       const arr = tab==='expenses' ? D.expenses : D[tab];
       const x = arr.findIndex(i=>i.id===eId);
       if (x>=0) arr[x] = saved;
     } else {
-      const res = await sbReq('POST', tbl, item);
-      saved = res && res[0] ? res[0] : {...item, id:Date.now()};
+      saved = await sbInsert(tbl, item);
+      if (!saved) saved = {...item, id:Date.now()};
       if (tab==='expenses') D.expenses.push(saved);
       else D[tab].push(saved);
     }
-    sv();
-    closeModal();
+    sv(); closeModal();
     if (tab==='expenses') { renderExpensesKPI(); renderExpFilter(); renderExpMain(); }
     else { renderKPI(); renderBoardHdr(); renderMain(); }
     if (saved.id) openPanel(saved.id);
     toast(eId?'עודכן בהצלחה ✓':'נוסף בהצלחה ✓','s');
   } catch(e) {
-    console.error('Save failed:', e);
-    toast('שגיאה בשמירה — בדוק חיבור','e');
+    console.error('Save error:', e);
+    toast('שגיאה בשמירה: '+e.message,'e');
   }
 }
 
-// ── OVERRIDE del with Supabase ──
 async function del(id) {
   if (!confirm('למחוק?')) return;
   const tbl = tab==='expenses' ? 'expenses' : tab;
   try {
-    await sbReq('DELETE', tbl, null, id);
+    await sbDelete(tbl, id);
     if (tab==='expenses') D.expenses = D.expenses.filter(i=>i.id!==id);
     else D[tab] = D[tab].filter(i=>i.id!==id);
     sv();
@@ -932,14 +908,9 @@ async function del(id) {
     else { renderKPI(); renderMain(); }
     toast('נמחק ✓','s');
   } catch(e) {
-    console.error('Delete failed:', e);
-    toast('שגיאה במחיקה','e');
+    toast('שגיאה במחיקה: '+e.message,'e');
   }
 }
-
-
-document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closePanel();}});
 
 loadFromCloud();
 </script>
