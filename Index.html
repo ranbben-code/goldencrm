@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GoldenCRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#fff;--bg:#F6F7FB;--bg2:#F0F1F7;
+  --border:#E6E9EF;--border2:#D0D4E0;
+  --text:#323338;--text2:#676879;--text3:#C3C6D4;--text4:#A1A4B5;
+  --blue:#0073EA;--blue2:#579BFC;--blue3:#E6F0FF;
+  --green:#00C875;--green2:#E6FAF3;
+  --orange:#FDAB3D;--orange2:#FFF0D6;
+  --red:#E2445C;--red2:#FFECEF;
+  --purple:#A25DDC;--purple2:#F3EBFF;
+  --brand:#FF3D57;
+  --shadow-sm:0 1px 4px rgba(0,0,0,.08);
+  --shadow:0 4px 16px rgba(0,0,0,.1);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.14);
+  --r:6px;--r2:10px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:'Figtree',sans-serif;color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.app{display:flex;height:100vh;overflow:hidden}
+.sb{width:220px;flex-shrink:0;background:var(--white);border-left:1px solid var(--border);display:flex;flex-direction:column;transition:width .25s;overflow:hidden}
+.sb.mini{width:56px}
+.sb-top{height:56px;flex-shrink:0;display:flex;align-items:center;padding:0 14px;gap:10px;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:9px;flex:1;overflow:hidden}
+.sb-mark{width:32px;height:32px;flex-shrink:0;background:linear-gradient(135deg,var(--brand),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(162,93,220,.3)}
+.sb-name{font-size:15px;font-weight:800;color:var(--text);white-space:nowrap;letter-spacing:-.3px}
+.sb-name span{color:var(--purple)}
+.sb.mini .sb-name{display:none}
+.sb-nav{flex:1;padding:12px 8px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.sb-sec{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:10px 10px 4px;white-space:nowrap}
+.sb.mini .sb-sec{opacity:0}
+.sb-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r2);color:var(--text2);font-size:13.5px;font-weight:500;cursor:pointer;border:none;background:transparent;width:100%;text-align:right;font-family:'Figtree',sans-serif;transition:all .12s;white-space:nowrap;overflow:hidden}
+.sb-item i{font-size:19px;flex-shrink:0}
+.sb-item:hover{background:var(--bg);color:var(--text)}
+.sb-item.on{background:var(--blue3);color:var(--blue);font-weight:700}
+.sb-item.on i{color:var(--blue)}
+.sb.mini .sb-item span{display:none}
+.sb-bottom{padding:10px 8px;border-top:1px solid var(--border);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r2);overflow:hidden}
+.sb-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--brand));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-uname{font-size:13px;font-weight:600;color:var(--text)}
+.sb-urole{font-size:11px;color:var(--text4)}
+.sb.mini .sb-utext{display:none}
+.mini-btn{width:32px;height:32px;border-radius:var(--r);background:transparent;border:1px solid var(--border);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .12s;flex-shrink:0}
+.mini-btn:hover{border-color:var(--border2);color:var(--text2);background:var(--bg)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.hdr{height:56px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px}
+.hdr-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px}
+.hdr-badge{background:var(--bg2);color:var(--text2);font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px}
+.spacer{flex:1}
+.search-wrap{position:relative;display:flex;align-items:center}
+.search-wrap i{position:absolute;right:10px;color:var(--text3);font-size:16px;pointer-events:none}
+.search-inp{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:7px 34px 7px 14px;color:var(--text);font-size:13.5px;font-family:'Figtree',sans-serif;width:220px;outline:none;transition:all .18s;font-weight:500}
+.search-inp::placeholder{color:var(--text3)}
+.search-inp:focus{border-color:var(--blue);background:var(--white);box-shadow:0 0 0 3px rgba(0,115,234,.1)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:var(--r2);font-size:13.5px;font-weight:700;font-family:'Figtree',sans-serif;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(0,115,234,.25)}
+.btn-blue:hover{background:#0062c4}
+.btn-red{background:var(--red);color:#fff;box-shadow:0 2px 8px rgba(226,68,92,.25)}
+.btn-red:hover{background:#c4223b}
+.btn-outline{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--border2);color:var(--text);background:var(--bg)}
+.btn-icon{padding:7px;background:transparent;border:1.5px solid var(--border);color:var(--text3);border-radius:var(--r2)}
+.btn-icon:hover{border-color:var(--border2);color:var(--text2);background:var(--bg)}
+.content{flex:1;overflow-y:auto;background:var(--bg)}
+.kpi-wrap{padding:20px 24px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);padding:16px 18px;transition:all .18s;cursor:default}
+.kpi:hover{border-color:var(--border2);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.kpi-icon{width:36px;height:36px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.kpi-icon.blue{background:var(--blue3);color:var(--blue)}
+.kpi-icon.green{background:var(--green2);color:var(--green)}
+.kpi-icon.orange{background:var(--orange2);color:var(--orange)}
+.kpi-icon.purple{background:var(--purple2);color:var(--purple)}
+.kpi-icon.red{background:var(--red2);color:var(--red)}
+.kpi-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1}
+.kpi-sub{font-size:12px;color:var(--text4);margin-top:6px;font-weight:500}
+.kpi-sub.up{color:var(--green)}
+.board-hdr{padding:14px 24px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:10}
+.view-tabs{display:flex;gap:2px;background:var(--bg);border-radius:var(--r2);padding:3px}
+.vtab{background:transparent;border:none;color:var(--text2);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Figtree',sans-serif;display:flex;align-items:center;gap:6px;transition:all .12s}
+.vtab.on{background:var(--white);color:var(--text);box-shadow:var(--shadow-sm)}
+.fsel{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);padding:6px 12px;color:var(--text2);font-size:13px;font-weight:600;font-family:'Figtree',sans-serif;cursor:pointer;outline:none;transition:all .12s}
+.fsel:hover,.fsel:focus{border-color:var(--blue);color:var(--text)}
+.fsel option{background:white}
+.board-wrap{overflow-x:auto}
+.board-tbl{width:100%;border-collapse:collapse;min-width:560px}
+.board-tbl thead th{background:var(--bg);padding:10px 16px;text-align:right;font-size:12px;font-weight:700;color:var(--text2);border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0;z-index:5;transition:color .12s}
+.board-tbl thead th:hover{color:var(--text)}
+.board-tbl tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.board-tbl tbody tr:hover{background:#F9F9FC}
+.board-tbl tbody tr.sel{background:var(--blue3)}
+.board-tbl tbody tr.sel td:first-child{border-right:3px solid var(--blue)}
+.board-tbl td{padding:12px 16px;vertical-align:middle;font-size:13.5px}
+.board-tbl tfoot td{background:var(--bg);padding:10px 16px;font-size:12px;font-weight:700;color:var(--text2);border-top:2px solid var(--border)}
+.td-acts{display:flex;gap:5px;opacity:0;transition:opacity .12s}
+tr:hover .td-acts{opacity:1}
+.cell-main{font-weight:600;color:var(--text);font-size:14px}
+.cell-sub{font-size:12px;color:var(--text4);margin-top:2px;font-weight:500}
+.av-wrap{display:flex;align-items:center;gap:10px}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.pill{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+.p-new{background:#E6F2FF;color:#0073EA}
+.p-contact{background:#F3EBFF;color:#A25DDC}
+.p-proposal{background:#FFF0D6;color:#C97D00}
+.p-negotiation{background:#E6FAF3;color:#007848}
+.p-won{background:#E6FAF3;color:#00C875}
+.p-lost{background:#FFECEF;color:#E2445C}
+.p-active{background:#E6F2FF;color:#0073EA}
+.p-vip{background:linear-gradient(90deg,#FFF0D6,#F3EBFF);color:#A25DDC;border:1px solid rgba(162,93,220,.2)}
+.p-planning{background:#E6F2FF;color:#0073EA}
+.p-review{background:#FFF0D6;color:#C97D00}
+.p-done{background:#E6FAF3;color:#00C875}
+.p-paused{background:#F5F5F8;color:#676879}
+.p-potential{background:#F3EBFF;color:#A25DDC}
+.p-inactive{background:#F5F5F8;color:#676879}
+.p-exp-marketing{background:#FFF0D6;color:#C97D00}
+.p-exp-software{background:#E6F2FF;color:#0073EA}
+.p-exp-salary{background:#F3EBFF;color:#A25DDC}
+.p-exp-office{background:#E6FAF3;color:#007848}
+.p-exp-travel{background:#E6FAFA;color:#007878}
+.p-exp-other{background:#F5F5F8;color:#676879}
+.prio-chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600}
+.pd{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.ph{background:#E2445C}.pm{background:#FDAB3D}.pl{background:#00C875}
+.prog-track{width:80px;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#579BFC,#0073EA)}
+.kanban{display:flex;gap:16px;padding:24px;overflow-x:auto;align-items:flex-start}
+.kcol{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);min-width:230px;width:230px;flex-shrink:0}
+.kcol-hd{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.kcol-cnt{background:var(--bg2);color:var(--text2);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.kcards{padding:10px;display:flex;flex-direction:column;gap:8px}
+.kcard{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:14px;cursor:pointer;transition:all .18s}
+.kcard:hover{border-color:var(--blue);box-shadow:var(--shadow-sm);background:var(--white);transform:translateY(-2px)}
+.kc-n{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.kc-co{font-size:12px;color:var(--text4);margin-bottom:10px;font-weight:500}
+.kc-foot{display:flex;justify-content:space-between;align-items:center}
+.kc-v{font-size:13px;color:var(--blue);font-weight:800}
+.kc-d{font-size:11px;color:var(--text3)}
+.kadd{background:transparent;border:none;border-top:1px solid var(--border);color:var(--text3);font-size:13px;font-weight:600;padding:10px;width:100%;cursor:pointer;font-family:'Figtree',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .12s;border-radius:0 0 var(--r2) var(--r2)}
+.kadd:hover{color:var(--blue);background:var(--blue3)}
+.col-bar{height:3px;border-radius:2px 2px 0 0;margin:-1px -1px 0;width:calc(100% + 2px)}
+.panel{width:0;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .28s cubic-bezier(.4,0,.2,1)}
+.panel.open{width:340px}
+.pnl-hd{padding:20px 20px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.pnl-av-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px}
+.pnl-av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex-shrink:0}
+.pnl-name{font-size:17px;font-weight:800;color:var(--text);margin-bottom:3px;letter-spacing:-.3px}
+.pnl-co{font-size:13px;color:var(--text4);margin-bottom:8px;font-weight:500}
+.pnl-scroll{flex:1;overflow-y:auto}
+.pnl-sec{padding:16px 20px;border-bottom:1px solid var(--border)}
+.pnl-sec-t{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.pnl-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px}
+.pnl-lbl{font-size:13px;color:var(--text2);font-weight:500}
+.pnl-val{font-size:13.5px;color:var(--text);font-weight:600;text-align:left}
+.pnl-val.blue{color:var(--blue);font-size:15px;font-weight:800}
+.pnl-val.green{color:var(--green);font-weight:700}
+.pnl-val.red{color:var(--red);font-weight:700}
+.pnl-act{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.notes-ta{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:10px 13px;color:var(--text);font-size:13px;resize:none;outline:none;font-family:'Figtree',sans-serif;line-height:1.6;font-weight:500;transition:border-color .15s}
+.notes-ta:focus{border-color:var(--blue);background:var(--white)}
+.notes-ta::placeholder{color:var(--text3)}
+.report-page{padding:24px;display:flex;flex-direction:column;gap:20px}
+.report-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.report-card-hd{padding:16px 20px 14px;border-bottom:1px solid var(--border)}
+.report-card-title{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.report-card-sub{font-size:12px;color:var(--text4);margin-top:2px;font-weight:500}
+.hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;padding:20px}
+.hc{border-radius:var(--r2);padding:16px 18px;border:1.5px solid transparent}
+.hc.income{background:var(--green2);border-color:rgba(0,200,117,.25)}
+.hc.expense{background:var(--red2);border-color:rgba(226,68,92,.2)}
+.hc.profit-pos{background:var(--green2);border-color:rgba(0,200,117,.35)}
+.hc.profit-neg{background:var(--red2);border-color:rgba(226,68,92,.3)}
+.hc.neutral{background:var(--bg);border-color:var(--border)}
+.hc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;color:var(--text3)}
+.hc.income .hc-label,.hc.profit-pos .hc-label{color:#007848}
+.hc.expense .hc-label,.hc.profit-neg .hc-label{color:#aa1e35}
+.hc-val{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.hc.income .hc-val,.hc.profit-pos .hc-val{color:var(--green)}
+.hc.expense .hc-val,.hc.profit-neg .hc-val{color:var(--red)}
+.hc.neutral .hc-val{color:var(--text2);font-size:17px}
+.hc-sub{font-size:12px;margin-top:5px;font-weight:500;color:var(--text4)}
+.hc.income .hc-sub,.hc.profit-pos .hc-sub{color:#007848}
+.hc.expense .hc-sub,.hc.profit-neg .hc-sub{color:#aa1e35}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.chart-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);padding:20px}
+.chart-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px;letter-spacing:-.3px}
+.chart-sub{font-size:12px;color:var(--text4);margin-bottom:18px;font-weight:500}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:170px;padding-bottom:26px;position:relative}
+.bar-chart::after{content:'';position:absolute;bottom:26px;left:0;right:0;height:1px;background:var(--border)}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:3px;position:relative}
+.bar-pair{display:flex;gap:2px;align-items:flex-end;width:100%}
+.bar-seg{flex:1;border-radius:4px 4px 0 0;cursor:pointer;position:relative;min-height:3px;transition:opacity .15s}
+.bar-seg:hover{opacity:.8}
+.bar-seg:hover .bar-tt{display:block}
+.bar-tt{display:none;position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:11px;font-weight:700;padding:5px 9px;border-radius:7px;white-space:nowrap;z-index:20;font-family:'Figtree',sans-serif;pointer-events:none;line-height:1.5}
+.bar-tt::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--text)}
+.bar-lbl{font-size:10px;font-weight:600;color:var(--text4);position:absolute;bottom:0;text-align:center;width:100%}
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.donut-legend{display:flex;flex-direction:column;gap:8px;flex:1}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.legend-lbl{color:var(--text);flex:1}
+.legend-pct{color:var(--text4);font-weight:700;font-size:12px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(40,50,90,.45);backdrop-filter:blur(3px);z-index:1000;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--r2);width:560px;max-width:96vw;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);animation:popIn .2s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{opacity:0;transform:scale(.93) translateY(12px)}}
+.modal-hd{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.modal-title{font-size:17px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:9px;letter-spacing:-.3px}
+.modal-body{padding:20px 24px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1}
+.modal-ft{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fl{font-size:12.5px;color:var(--text2);font-weight:700}
+.fi,.fsl,.fta{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:9px 13px;color:var(--text);font-size:14px;font-weight:500;outline:none;font-family:'Figtree',sans-serif;width:100%;transition:all .15s}
+.fi::placeholder{color:var(--text3)}
+.fi:focus,.fsl:focus,.fta:focus{border-color:var(--blue);background:var(--white);box-shadow:0 0 0 3px rgba(0,115,234,.1)}
+.fta{resize:vertical;min-height:70px;line-height:1.6}
+.fsl option{background:white}
+.vat-hint{font-size:12px;font-weight:700;margin-top:4px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;padding:12px 22px;border-radius:var(--r2);font-size:13.5px;font-weight:600;z-index:2000;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:9px;font-family:'Figtree',sans-serif;box-shadow:var(--shadow-lg)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast i{font-size:18px}
+.toast.s i{color:var(--green)}.toast.e i{color:#FF7575}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px;color:var(--text3);gap:12px}
+.empty i{font-size:44px;color:var(--border2)}
+.empty p{font-size:14px;font-weight:600}
+@media(max-width:768px){
+  .sb{width:52px}.sb.mini{width:52px}
+  .sb-name,.sb-item span,.sb-sec,.sb-utext{display:none!important}
+  .kpi-wrap{padding:14px;grid-template-columns:1fr 1fr}
+  .charts-row{grid-template-columns:1fr}
+  .panel.open{width:100%;position:fixed;inset:0;z-index:200;border:none}
+  .frow{grid-template-columns:1fr}
+  .hdr{padding:0 14px}.search-inp{width:150px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sb" id="sb">
+  <div class="sb-top"><div class="sb-logo"><div class="sb-mark">G</div><span class="sb-name">Golden<span>CRM</span></span></div><button class="mini-btn" onclick="toggleSb()"><i class="ti ti-layout-sidebar"></i></button></div>
+  <nav class="sb-nav">
+    <div class="sb-sec">ניהול</div>
+    <button class="sb-item on" onclick="go('leads')" id="t-leads"><i class="ti ti-users"></i><span>לידים</span></button>
+    <button class="sb-item" onclick="go('projects')" id="t-projects"><i class="ti ti-briefcase"></i><span>פרויקטים</span></button>
+    <button class="sb-item" onclick="go('clients')" id="t-clients"><i class="ti ti-building"></i><span>לקוחות</span></button>
+    <div class="sb-sec" style="margin-top:8px">כספים</div>
+    <button class="sb-item" onclick="go('income')" id="t-income"><i class="ti ti-chart-bar"></i><span>הכנסות</span></button>
+    <button class="sb-item" onclick="go('expenses')" id="t-expenses"><i class="ti ti-receipt"></i><span>הוצאות</span></button>
+    <button class="sb-item" onclick="go('report')" id="t-report"><i class="ti ti-scale"></i><span>רווח והפסד</span></button>
+  </nav>
+  <div class="sb-bottom"><div class="sb-user"><div class="sb-av">ר</div><div class="sb-utext"><div class="sb-uname">רן</div><div class="sb-urole">Golden Key</div></div></div></div>
+</aside>
+<div class="main">
+  <header class="hdr">
+    <span class="hdr-title" id="hdrTitle">לידים</span>
+    <span class="hdr-badge" id="hdrBadge">0</span>
+    <div class="spacer"></div>
+    <div class="search-wrap" id="searchArea"><i class="ti ti-search"></i><input class="search-inp" type="text" placeholder="חיפוש..." id="searchInp" oninput="renderMain()"></div>
+    <button class="btn btn-icon" onclick="renderPage()" title="רענן"><i class="ti ti-refresh"></i></button>
+    <button class="btn btn-blue" id="addBtn" onclick="openAdd()"><i class="ti ti-plus"></i><span id="addLbl">הוסף ליד</span></button>
+  </header>
+  <div class="content" id="content">
+    <div id="kpiArea"></div>
+    <div id="pageArea"></div>
+    <div id="boardHdrArea"></div>
+    <div id="mainArea"></div>
+  </div>
+</div>
+<div class="panel" id="panel"></div>
+</div>
+<div class="overlay" id="modal">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-title" id="mTitle"><i class="ti ti-plus" style="color:var(--blue)"></i>הוסף</span><button class="btn btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal()">ביטול</button><button class="btn btn-blue" id="saveBtn" onclick="saveItem()"><i class="ti ti-check"></i> שמור</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"><i class="ti ti-circle-check"></i><span id="tMsg"></span></div>
+<script>
+const SK='gcrm_v5';
+const VAT=0.18;
+let tab='leads',view='table',eId=null,sId=null;
+const EXP_CATS=['שיווק','תוכנה / מנויים','שכר / פרילנס','משרד ותפעול','נסיעות','אחר'];
+const EXP_PILL={'שיווק':'p-exp-marketing','תוכנה / מנויים':'p-exp-software','שכר / פרילנס':'p-exp-salary','משרד ותפעול':'p-exp-office','נסיעות':'p-exp-travel','אחר':'p-exp-other'};
+const CFG={
+  leads:{label:'לידים',add:'הוסף ליד',color:'#0073EA',statuses:['ליד חדש','יצירת קשר','הצעת מחיר','משא ומתן','נסגר - הכנסה','נסגר - הפסד'],pmap:{'ליד חדש':'p-new','יצירת קשר':'p-contact','הצעת מחיר':'p-proposal','משא ומתן':'p-negotiation','נסגר - הכנסה':'p-won','נסגר - הפסד':'p-lost'},colors:['#0073EA','#A25DDC','#FDAB3D','#00C875','#E2445C','#FF7575']},
+  projects:{label:'פרויקטים',add:'הוסף פרויקט',color:'#00C875',statuses:['תכנון','בביצוע','סקירה','הושלם','מוקפא'],pmap:{'תכנון':'p-planning','בביצוע':'p-active','סקירה':'p-review','הושלם':'p-done','מוקפא':'p-paused'},colors:['#0073EA','#FDAB3D','#A25DDC','#00C875','#676879']},
+  clients:{label:'לקוחות',add:'הוסף לקוח',color:'#A25DDC',statuses:['פעיל','לא פעיל','VIP','פוטנציאלי'],pmap:{'פעיל':'p-active','לא פעיל':'p-inactive','VIP':'p-vip','פוטנציאלי':'p-potential'},colors:['#0073EA','#676879','#A25DDC','#FDAB3D']},
+  expenses:{label:'הוצאות',add:'הוסף הוצאה',color:'#E2445C'},
+  income:{label:'הכנסות',add:''},
+  report:{label:'רווח והפסד',add:''}
+};
+const AVC=[['#E6F0FF','#0073EA'],['#F3EBFF','#A25DDC'],['#FFF0D6','#C97D00'],['#E6FAF3','#00C875'],['#FFECEF','#E2445C'],['#E6FAFA','#00D5BE'],['#FFF0E6','#FF7575'],['#F0EBFF','#5559DF']];
+const HEM=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+function ld(){try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){}return seed();}
+function sv(){try{localStorage.setItem(SK,JSON.stringify(D));}catch(e){}}
+function seed(){return{
+  leads:[
+    {id:1,name:'נדב כהן',company:'אפי נדל"ן',status:'יצירת קשר',value:85000,priority:'גבוהה',date:'2026-05-10',owner:'רן',phone:'050-1234567',email:'',notes:''},
+    {id:2,name:'מיכל לוי',company:'גינדי השקעות',status:'הצעת מחיר',value:120000,priority:'גבוהה',date:'2026-05-14',owner:'רן',phone:'054-5556677',email:'',notes:'שלחתי הצעה ב-12/5'},
+    {id:3,name:'אבי רוזנברג',company:'אמבסדור גרופ',status:'ליד חדש',value:45000,priority:'בינונית',date:'2026-05-18',owner:'רן',phone:'',email:'',notes:''},
+    {id:4,name:'דנה שפירא',company:'אלקטרה נדל"ן',status:'נסגר - הכנסה',value:200000,priority:'גבוהה',date:'2026-04-20',owner:'רן',phone:'052-9876543',email:'dana@electra.co.il',notes:'חתמנו חוזה שנתי!'},
+    {id:5,name:'יוסי גרין',company:'קנדה ישראל',status:'משא ומתן',value:65000,priority:'בינונית',date:'2026-05-05',owner:'רן',phone:'',email:'',notes:''},
+    {id:6,name:'רועי פרידמן',company:'ישפרו',status:'נסגר - הכנסה',value:75000,priority:'גבוהה',date:'2026-03-15',owner:'רן',phone:'',email:'',notes:''},
+    {id:7,name:'ליאת בן-דוד',company:'קבוצת רוטשטיין',status:'נסגר - הכנסה',value:55000,priority:'בינונית',date:'2026-03-28',owner:'רן',phone:'',email:'',notes:''},
+    {id:8,name:'תמר עוז',company:'מגה-אור',status:'נסגר - הכנסה',value:90000,priority:'גבוהה',date:'2026-02-10',owner:'רן',phone:'',email:'',notes:''},
+    {id:9,name:'דני שחם',company:'שפיר הנדסה',status:'נסגר - הכנסה',value:40000,priority:'נמוכה',date:'2026-01-22',owner:'רן',phone:'',email:'',notes:''},
+  ],
+  projects:[
+    {id:1,name:'קמפיין תוכן - אלקטרה',company:'אלקטרה נדל"ן',status:'בביצוע',value:60000,progress:65,date:'2026-06-30',owner:'רן',notes:''},
+    {id:2,name:'סרטוני ריילס - פארק',company:'אפי נדל"ן',status:'תכנון',value:28000,progress:15,date:'2026-07-15',owner:'רן',notes:''},
+    {id:3,name:'אתר לידים - גינדי',company:'גינדי השקעות',status:'סקירה',value:35000,progress:90,date:'2026-05-25',owner:'רן',notes:''},
+    {id:4,name:'ברושורים דיגיטליים',company:'קנדה ישראל',status:'הושלם',value:18000,progress:100,date:'2026-03-31',owner:'רן',notes:''},
+  ],
+  clients:[
+    {id:1,name:'אלקטרה נדל"ן',company:'נדל"ן מסחרי',status:'VIP',value:200000,contact:'דנה שפירא',phone:'052-9876543',city:'תל אביב',email:'',notes:'לקוח אסטרטגי'},
+    {id:2,name:'אפי נדל"ן',company:'נדל"ן למגורים',status:'פעיל',value:85000,contact:'נדב כהן',phone:'050-1234567',city:'הרצליה',email:'',notes:''},
+    {id:3,name:'גינדי השקעות',company:'השקעות נדל"ן',status:'פוטנציאלי',value:120000,contact:'מיכל לוי',phone:'054-5556677',city:'רמת גן',email:'',notes:''},
+    {id:4,name:'קנדה ישראל',company:'נדל"ן יוקרה',status:'פעיל',value:65000,contact:'יוסי גרין',phone:'',city:'תל אביב',email:'',notes:''},
+  ],
+  expenses:[
+    {id:1,name:'Meta Ads ינואר',category:'שיווק',value:4500,date:'2026-01-10',vendor:'Meta',notes:''},
+    {id:2,name:'Monday.com שנתי',category:'תוכנה / מנויים',value:2200,date:'2026-01-15',vendor:'Monday',notes:''},
+    {id:3,name:'Meta Ads פברואר',category:'שיווק',value:5200,date:'2026-02-08',vendor:'Meta',notes:''},
+    {id:4,name:'Adobe Creative Cloud',category:'תוכנה / מנויים',value:360,date:'2026-02-20',vendor:'Adobe',notes:''},
+    {id:5,name:'פרילנסר ערכת תוכן',category:'שכר / פרילנס',value:8000,date:'2026-03-01',vendor:'ליאור כהן',notes:''},
+    {id:6,name:'Meta Ads מרץ',category:'שיווק',value:6100,date:'2026-03-10',vendor:'Meta',notes:''},
+    {id:7,name:'שכירות משרד מרץ',category:'משרד ותפעול',value:3500,date:'2026-03-25',vendor:'בעל נכס',notes:''},
+    {id:8,name:'Meta Ads אפריל',category:'שיווק',value:5800,date:'2026-04-08',vendor:'Meta',notes:''},
+    {id:9,name:'נסיעה ללקוח חיפה',category:'נסיעות',value:420,date:'2026-04-15',vendor:'',notes:''},
+    {id:10,name:'ציוד משרד',category:'משרד ותפעול',value:1200,date:'2026-04-22',vendor:'KSP',notes:''},
+    {id:11,name:'Meta Ads מאי',category:'שיווק',value:6400,date:'2026-05-05',vendor:'Meta',notes:''},
+    {id:12,name:'ChatGPT Plus',category:'תוכנה / מנויים',value:120,date:'2026-05-12',vendor:'OpenAI',notes:''},
+  ]
+};}
+let D=ld();
+function fmt(n){return'₪'+Math.round(n||0).toLocaleString('he-IL')}
+function ini(n){if(!n)return'?';const p=n.trim().split(' ');return p.length>=2?p[0][0]+p[1][0]:n.slice(0,2)}
+function avc(i){return AVC[i%AVC.length]}
+function mkey(d){if(!d)return null;const p=d.split('-');return`${p[0]}-${p[1]}`}
+function mlabel(k){if(!k)return'';const p=k.split('-');return HEM[parseInt(p[1])-1]+' '+p[0]}
+function toggleSb(){document.getElementById('sb').classList.toggle('mini')}
+function go(t){
+  tab=t;sId=null;eId=null;
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('on'));
+  document.getElementById('t-'+t).classList.add('on');
+  document.getElementById('hdrTitle').textContent=CFG[t].label;
+  document.getElementById('addLbl').textContent=CFG[t].add||'';
+  const aBtn=document.getElementById('addBtn');
+  const noAdd=['income','report'].includes(t);
+  aBtn.style.display=noAdd?'none':'inline-flex';
+  aBtn.className='btn '+(t==='expenses'?'btn-red':'btn-blue');
+  document.getElementById('searchArea').style.display=['income','report'].includes(t)?'none':'flex';
+  const p=document.getElementById('panel');p.classList.remove('open');p.innerHTML='';
+  renderPage();
+}
+function clrPage(){['kpiArea','pageArea','boardHdrArea','mainArea'].forEach(id=>document.getElementById(id).innerHTML='')}
+function renderPage(){
+  clrPage();
+  if(tab==='income'){renderIncomePage();return;}
+  if(tab==='expenses'){renderExpensesKPI();renderExpFilter();renderExpMain();return;}
+  if(tab==='report'){renderReportPage();return;}
+  renderKPI();renderBoardHdr();renderMain();
+}
+function renderKPI(){
+  const items=D[tab]||[];let h='';
+  if(tab==='leads'){
+    const won=items.filter(i=>i.status==='נסגר - הכנסה');
+    const inc=won.reduce((a,i)=>a+(i.value||0),0);
+    const rate=items.length?Math.round(won.length/items.length*100):0;
+    const pipe=items.filter(i=>!['נסגר - הפסד','נסגר - הכנסה'].includes(i.status)).reduce((a,i)=>a+(i.value||0),0);
+    const avg=items.length?Math.round(items.reduce((a,i)=>a+(i.value||0),0)/items.length):0;
+    h=`<div class="kpi"><div class="kpi-top"><div><div class="kpi-label">לידים</div><div class="kpi-val">${items.length}</div></div><div class="kpi-icon blue"><i class="ti ti-users"></i></div></div><div class="kpi-sub up">+2 השבוע</div></div>
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">הכנסות</div><div class="kpi-val" style="font-size:20px">${fmt(inc)}</div></div><div class="kpi-icon green"><i class="ti ti-trending-up"></i></div></div><div class="kpi-sub">${won.length} עסקאות · ${rate}% המרה</div></div>
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">פייפליין</div><div class="kpi-val" style="font-size:20px">${fmt(pipe)}</div></div><div class="kpi-icon blue"><i class="ti ti-chart-pie-2"></i></div></div><div class="kpi-sub">${items.filter(i=>!['נסגר - הפסד','נסגר - הכנסה'].includes(i.status)).length} פתוחים</div></div>
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">ממוצע עסקה</div><div class="kpi-val" style="font-size:20px">${fmt(avg)}</div></div><div class="kpi-icon orange"><i class="ti ti-calculator"></i></div></div></div>`;
+  }else if(tab==='projects'){
+    const act=items.filter(i=>i.status==='בביצוע');const done=items.filter(i=>i.status==='הושלם');
+    const total=items.reduce((a,i)=>a+(i.value||0),0);const avgP=act.length?Math.round(act.reduce((a,i)=>a+(i.progress||0),0)/act.length):0;
+    h=`<div class="kpi"><div class="kpi-top"><div><div class="kpi-label">פרויקטים</div><div class="kpi-val">${items.length}</div></div><div class="kpi-icon blue"><i class="ti ti-briefcase"></i></div></div></div>
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">בביצוע</div><div class="kpi-val">${act.length}</div></div><div class="kpi-icon orange"><i class="ti ti-loader"></i></div></div><div class="kpi-sub up">ממוצע ${avgP}%</div></div>
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">הושלמו</div><div class="kpi-val">${done.length}</div></div><div class="kpi-icon green"><i class="ti ti-circle-check"></i></div></div></div>
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">ערך כולל</div><div class="kpi-val" style="font-size:20px">${fmt(total)}</div></div><div class="kpi-icon purple"><i class="ti ti-report-money"></i></div></div></div>`;
+  }else{
+    const act=items.filter(i=>['פעיל','VIP'].includes(i.status));const vip=items.filter(i=>i.status==='VIP');
+    const total=items.reduce((a,i)=>a+(i.value||0),0);
+    h=`<div class="kpi"><div class="kpi-top"><div><div class="kpi-label">לקוחות</div><div class="kpi-val">${items.length}</div></div><div class="kpi-icon purple"><i class="ti ti-building"></i></div></div></div>
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">פעילים</div><div class="kpi-val">${act.length}</div></div><div class="kpi-icon green"><i class="ti ti-user-check"></i></div></div></div>
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">VIP</div><div class="kpi-val">${vip.length}</div></div><div class="kpi-icon orange"><i class="ti ti-crown"></i></div></div></div>
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">ערך שנתי</div><div class="kpi-val" style="font-size:20px">${fmt(total)}</div></div><div class="kpi-icon blue"><i class="ti ti-currency-shekel"></i></div></div></div>`;
+  }
+  document.getElementById('kpiArea').innerHTML=`<div class="kpi-wrap">${h}</div>`;
+  document.getElementById('hdrBadge').textContent=items.length;
+}
+function buildDonut(lInc,pInc){
+  const total=lInc+pInc||1;const lP=Math.round(lInc/total*100);const pP=100-lP;
+  const r=54,cx=64,cy=64,circ=2*Math.PI*r;const lD=circ*lP/100;
+  return`<svg width="128" height="128" viewBox="0 0 128 128">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#F0F1F7" stroke-width="18"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#0073EA" stroke-width="18" stroke-dasharray="${lD} ${circ-lD}" stroke-dashoffset="${circ/4}" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#00C875" stroke-width="18" stroke-dasharray="${circ-lD} ${lD}" stroke-dashoffset="${circ/4-lD}" stroke-linecap="round"/>
+    <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="12" font-weight="800" fill="#323338" font-family="Figtree,sans-serif">${fmt(total)}</text>
+    <text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="10" fill="#676879" font-family="Figtree,sans-serif">סה"כ</text>
+  </svg><div class="donut-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#0073EA"></div><span class="legend-lbl">לידים</span><span class="legend-pct">${lP}%</span></div>
+    <div style="font-size:12px;color:var(--text2);margin-right:18px;font-weight:600;margin-top:-2px">${fmt(lInc)}</div>
+    <div class="legend-item" style="margin-top:6px"><div class="legend-dot" style="background:#00C875"></div><span class="legend-lbl">פרויקטים</span><span class="legend-pct">${pP}%</span></div>
+    <div style="font-size:12px;color:var(--text2);margin-right:18px;font-weight:600;margin-top:-2px">${fmt(pInc)}</div>
+  </div>`;
+}
+function renderIncomePage(){
+  const won=D.leads.filter(i=>i.status==='נסגר - הכנסה');
+  const pDone=D.projects.filter(i=>i.status==='הושלם');
+  const all=[...won.map(i=>({...i,src:'ליד'})),...pDone.map(i=>({...i,src:'פרויקט'}))].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const base=all.reduce((a,i)=>a+(i.value||0),0);
+  const lInc=won.reduce((a,i)=>a+(i.value||0),0);const pInc=pDone.reduce((a,i)=>a+(i.value||0),0);
+  const mMap={};all.forEach(it=>{const k=mkey(it.date);if(!k)return;if(!mMap[k])mMap[k]={income:0,count:0};mMap[k].income+=(it.value||0);mMap[k].count++;});
+  const months=Object.keys(mMap).sort().map(k=>({k,...mMap[k]}));
+  const maxI=Math.max(...months.map(m=>m.income),1);
+  const cols=['#0073EA','#A25DDC','#00C875','#FDAB3D','#E2445C','#00D5BE','#FF7575','#5559DF'];
+  const bars=months.map((m,i)=>{const h=Math.max(Math.round(m.income/maxI*140),4);const c=cols[i%cols.length];return`<div class="bar-col"><div class="bar-pair" style="height:${h}px"><div class="bar-seg" style="background:${c};height:100%"><div class="bar-tt">${mlabel(m.k)}<br>${fmt(m.income)}<br>${m.count} סגירות</div></div></div><span class="bar-lbl">${HEM[parseInt(m.k.split('-')[1])-1].slice(0,3)}</span></div>`;}).join('');
+  const mRows=months.map(m=>`<tr><td style="font-weight:700">${mlabel(m.k)}</td><td style="text-align:center;color:var(--blue);font-weight:700">${m.count}</td><td style="color:var(--green);font-weight:800">${fmt(m.income)}</td><td style="color:var(--text4)">${fmt(m.income*VAT)}</td><td style="color:var(--green);font-weight:800">${fmt(m.income*(1+VAT))}</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--bg2);border-radius:3px;min-width:50px;overflow:hidden"><div style="height:100%;width:${Math.round(m.income/base*100)}%;background:var(--green);border-radius:3px"></div></div><span style="font-size:11px;font-weight:700;color:var(--text4)">${Math.round(m.income/base*100)}%</span></div></td></tr>`).join('');
+  const dRows=all.map((it,i)=>`<tr><td><div class="av-wrap"><div class="av" style="background:${avc(i)[0]};color:${avc(i)[1]}">${ini(it.name)}</div><div><div class="cell-main">${it.name}</div><div class="cell-sub">${it.company||''}</div></div></div></td><td><span class="pill ${it.src==='ליד'?'p-contact':'p-done'}">${it.src}</span></td><td style="font-weight:800;color:var(--blue)">${fmt(it.value||0)}</td><td style="color:var(--text4)">${fmt((it.value||0)*VAT)}</td><td style="font-weight:800;color:var(--green)">${fmt((it.value||0)*(1+VAT))}</td><td style="color:var(--text4);font-size:12.5px">${it.date?mlabel(mkey(it.date)):'—'}</td></tr>`).join('');
+  document.getElementById('pageArea').innerHTML=`<div class="report-page">
+    <div class="report-card"><div class="report-card-hd"><div class="report-card-title"><i class="ti ti-trending-up" style="color:var(--green)"></i>סיכום הכנסות</div><div class="report-card-sub">${all.length} עסקאות · מע"מ 18%</div></div>
+      <div class="hero-grid"><div class="hc income"><div class="hc-label">לפני מע"מ</div><div class="hc-val">${fmt(base)}</div></div><div class="hc neutral"><div class="hc-label">מע"מ (18%)</div><div class="hc-val">${fmt(base*VAT)}</div></div><div class="hc income"><div class="hc-label">כולל מע"מ</div><div class="hc-val" style="font-size:24px">${fmt(base*(1+VAT))}</div></div><div class="hc neutral"><div class="hc-label">מלידים</div><div class="hc-val">${fmt(lInc)}</div></div><div class="hc neutral"><div class="hc-label">מפרויקטים</div><div class="hc-val">${fmt(pInc)}</div></div><div class="hc neutral"><div class="hc-label">עסקאות</div><div class="hc-val">${all.length}</div></div></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card"><div class="chart-title">הכנסות לפי חודש</div><div class="chart-sub">${months.length} חודשים פעילים</div>${months.length?`<div class="bar-chart">${bars}</div>`:'<div class="empty" style="padding:30px"><i class="ti ti-chart-off"></i><p>אין נתונים</p></div>'}</div>
+      <div class="chart-card"><div class="chart-title">מקורות הכנסה</div><div class="chart-sub">לידים לעומת פרויקטים</div><div class="donut-wrap">${buildDonut(lInc,pInc)}</div></div>
+    </div>
+    <div class="report-card"><div class="report-card-hd"><div class="report-card-title">התפלגות חודשית</div><div class="report-card-sub">לפני ואחרי מע"מ</div></div>
+      <div style="overflow-x:auto"><table class="board-tbl" dir="rtl"><thead><tr><th>חודש</th><th style="text-align:center">סגירות</th><th>הכנסה</th><th>מע"מ</th><th>כולל מע"מ</th><th>נתח</th></tr></thead><tbody>${mRows||'<tr><td colspan="6"><div class="empty" style="padding:20px"><i class="ti ti-calendar-off"></i><p>אין נתונים</p></div></td></tr>'}</tbody><tfoot><tr><td>סה"כ</td><td style="text-align:center;color:var(--blue);font-weight:800">${all.length}</td><td style="color:var(--green);font-weight:800">${fmt(base)}</td><td style="color:var(--text4)">${fmt(base*VAT)}</td><td style="color:var(--green);font-weight:800">${fmt(base*(1+VAT))}</td><td style="color:var(--green);font-weight:700">100%</td></tr></tfoot></table></div>
+    </div>
+    <div class="report-card"><div class="report-card-hd"><div class="report-card-title">כל העסקאות</div><div class="report-card-sub">${all.length} עסקאות</div></div>
+      <div style="overflow-x:auto"><table class="board-tbl" dir="rtl"><thead><tr><th>שם</th><th>מקור</th><th>לפני מע"מ</th><th>מע"מ</th><th>כולל מע"מ</th><th>תאריך</th></tr></thead><tbody>${dRows||'<tr><td colspan="6"><div class="empty" style="padding:20px"><i class="ti ti-report-off"></i><p>אין עסקאות</p></div></td></tr>'}</tbody><tfoot><tr><td colspan="2">סה"כ</td><td style="color:var(--green);font-weight:800">${fmt(base)}</td><td style="color:var(--text4)">${fmt(base*VAT)}</td><td style="color:var(--green);font-weight:800">${fmt(base*(1+VAT))}</td><td></td></tr></tfoot></table></div>
+    </div>
+  </div>`;
+}
+function renderExpensesKPI(){
+  const exps=D.expenses||[];const total=exps.reduce((a,i)=>a+(i.value||0),0);
+  const catMap={};exps.forEach(it=>{const c=it.category||'אחר';if(!catMap[c])catMap[c]=0;catMap[c]+=(it.value||0);});
+  document.getElementById('kpiArea').innerHTML=`<div class="kpi-wrap">
+    <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">רשומות הוצאות</div><div class="kpi-val">${exps.length}</div></div><div class="kpi-icon red"><i class="ti ti-receipt"></i></div></div></div>
+    <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">סה"כ ללא מע"מ</div><div class="kpi-val" style="font-size:20px;color:var(--red)">${fmt(total)}</div></div><div class="kpi-icon red"><i class="ti ti-trending-down"></i></div></div></div>
+    <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">סה"כ עם מע"מ</div><div class="kpi-val" style="font-size:20px;color:var(--red)">${fmt(total*(1+VAT))}</div></div><div class="kpi-icon orange"><i class="ti ti-percentage"></i></div></div></div>
+    <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">קטגוריות</div><div class="kpi-val">${Object.keys(catMap).length}</div></div><div class="kpi-icon purple"><i class="ti ti-tags"></i></div></div></div>
+  </div>`;
+  document.getElementById('hdrBadge').textContent=exps.length;
+}
+function renderExpFilter(){
+  document.getElementById('boardHdrArea').innerHTML=`<div class="board-hdr"><select class="fsel" id="sfS" onchange="renderExpMain()"><option value="">כל הקטגוריות</option>${EXP_CATS.map(c=>`<option>${c}</option>`).join('')}</select></div>`;
+}
+function renderExpMain(){
+  const q=(document.getElementById('searchInp')?.value||'').toLowerCase();
+  const cat=document.getElementById('sfS')?.value||'';
+  const exps=D.expenses||[];
+  const items=exps.filter(i=>{const m=((i.name||'')+(i.vendor||'')+(i.category||'')).toLowerCase().includes(q);return m&&(!cat||i.category===cat);});
+  const total=exps.reduce((a,i)=>a+(i.value||0),0);
+  const catMap={};exps.forEach(it=>{const c=it.category||'אחר';if(!catMap[c])catMap[c]=0;catMap[c]+=(it.value||0);});
+  const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const rows=items.map((it,i)=>`<tr onclick="openPanel(${it.id})" class="${sId===it.id?'sel':''}">
+    <td><div class="av-wrap"><div class="av" style="background:var(--red2);color:var(--red)"><i class="ti ti-receipt" style="font-size:14px"></i></div><div><div class="cell-main">${it.name}</div><div class="cell-sub">${it.vendor||''}</div></div></div></td>
+    <td><span class="pill ${EXP_PILL[it.category]||'p-exp-other'}">${it.category||'אחר'}</span></td>
+    <td style="font-weight:800;color:var(--red)">${fmt(it.value||0)}</td>
+    <td style="color:var(--text4)">${fmt((it.value||0)*VAT)}</td>
+    <td style="font-weight:800;color:var(--red)">${fmt((it.value||0)*(1+VAT))}</td>
+    <td style="color:var(--text4);font-size:12.5px">${it.date?mlabel(mkey(it.date)):'—'}</td>
+    <td><div class="td-acts"><button class="btn btn-icon" style="width:28px;height:28px;padding:0;justify-content:center" onclick="event.stopPropagation();openEdit(${it.id})"><i class="ti ti-pencil" style="font-size:14px"></i></button><button class="btn btn-icon" style="width:28px;height:28px;padding:0;justify-content:center;color:var(--red)" onclick="event.stopPropagation();del(${it.id})"><i class="ti ti-trash" style="font-size:14px"></i></button></div></td>
+  </tr>`).join('');
+  const catRows=cats.map(([c,v])=>`<tr><td><span class="pill ${EXP_PILL[c]||'p-exp-other'}">${c}</span></td><td style="font-weight:800;color:var(--red)">${fmt(v)}</td><td style="color:var(--text4)">${fmt(v*VAT)}</td><td style="font-weight:800;color:var(--red)">${fmt(v*(1+VAT))}</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--bg2);border-radius:3px;min-width:50px;overflow:hidden"><div style="height:100%;width:${Math.round(v/total*100)}%;background:var(--red);border-radius:3px"></div></div><span style="font-size:11px;font-weight:700;color:var(--text4)">${Math.round(v/total*100)}%</span></div></td></tr>`).join('');
+  document.getElementById('mainArea').innerHTML=`<div style="padding:20px 24px;display:flex;flex-direction:column;gap:16px">
+    <div class="report-card"><div class="report-card-hd"><div class="report-card-title">לפי קטגוריה</div><div class="report-card-sub">התפלגות הוצאות</div></div>
+      <div style="overflow-x:auto"><table class="board-tbl" dir="rtl"><thead><tr><th>קטגוריה</th><th>ללא מע"מ</th><th>מע"מ</th><th>כולל מע"מ</th><th>נתח</th></tr></thead><tbody>${catRows||'<tr><td colspan="5"><div class="empty" style="padding:20px"><i class="ti ti-tags-off"></i><p>אין נתונים</p></div></td></tr>'}</tbody><tfoot><tr><td>סה"כ</td><td style="color:var(--red);font-weight:800">${fmt(total)}</td><td style="color:var(--text4)">${fmt(total*VAT)}</td><td style="color:var(--red);font-weight:800">${fmt(total*(1+VAT))}</td><td style="color:var(--red);font-weight:700">100%</td></tr></tfoot></table></div>
+    </div>
+    <div class="report-card"><div class="report-card-hd"><div class="report-card-title">כל ההוצאות</div><div class="report-card-sub">${items.length} רשומות</div></div>
+      <div style="overflow-x:auto"><table class="board-tbl" dir="rtl"><thead><tr><th>תיאור</th><th>קטגוריה</th><th>ללא מע"מ</th><th>מע"מ</th><th>כולל מע"מ</th><th>תאריך</th><th style="width:70px"></th></tr></thead><tbody>${rows||'<tr><td colspan="7"><div class="empty" style="padding:20px"><i class="ti ti-receipt-off"></i><p>אין הוצאות</p></div></td></tr>'}</tbody><tfoot><tr><td colspan="2">סה"כ מסוננות</td><td style="color:var(--red);font-weight:800">${fmt(items.reduce((a,i)=>a+(i.value||0),0))}</td><td style="color:var(--text4)">${fmt(items.reduce((a,i)=>a+(i.value||0),0)*VAT)}</td><td style="color:var(--red);font-weight:800">${fmt(items.reduce((a,i)=>a+(i.value||0),0)*(1+VAT))}</td><td colspan="2"></td></tr></tfoot></table></div>
+    </div>
+  </div>`;
+}
+function renderReportPage(){
+  const won=[...D.leads.filter(i=>i.status==='נסגר - הכנסה'),...D.projects.filter(i=>i.status==='הושלם')];
+  const totalInc=won.reduce((a,i)=>a+(i.value||0),0);
+  const totalExp=(D.expenses||[]).reduce((a,i)=>a+(i.value||0),0);
+  const profit=totalInc-totalExp;const margin=totalInc?Math.round(profit/totalInc*100):0;
+  const allKeys=new Set();
+  const incM={};won.forEach(it=>{const k=mkey(it.date);if(k){allKeys.add(k);if(!incM[k])incM[k]=0;incM[k]+=(it.value||0);}});
+  const expM={};(D.expenses||[]).forEach(it=>{const k=mkey(it.date);if(k){allKeys.add(k);if(!expM[k])expM[k]=0;expM[k]+=(it.value||0);}});
+  const months=[...allKeys].sort().map(k=>({k,inc:incM[k]||0,exp:expM[k]||0,profit:(incM[k]||0)-(expM[k]||0)}));
+  const maxV=Math.max(...months.map(m=>Math.max(m.inc,m.exp)),1);
+  const bars=months.map(m=>{
+    const iH=Math.max(Math.round(m.inc/maxV*140),m.inc>0?4:0);
+    const eH=Math.max(Math.round(m.exp/maxV*140),m.exp>0?4:0);
+    return`<div class="bar-col"><div class="bar-pair" style="height:140px;align-items:flex-end">
+      <div class="bar-seg" style="background:#00C875;height:${iH}px"><div class="bar-tt">הכנסות ${mlabel(m.k)}<br>${fmt(m.inc)}</div></div>
+      <div class="bar-seg" style="background:#E2445C;height:${eH}px"><div class="bar-tt">הוצאות ${mlabel(m.k)}<br>${fmt(m.exp)}</div></div>
+    </div><span class="bar-lbl">${HEM[parseInt(m.k.split('-')[1])-1].slice(0,3)}</span></div>`;
+  }).join('');
+  const posClass=profit>=0;
+  const mRows=months.map(m=>{const p=m.profit;const mg=m.inc?Math.round(p/m.inc*100):0;return`<tr>
+    <td style="font-weight:700">${mlabel(m.k)}</td>
+    <td style="color:var(--green);font-weight:800">${fmt(m.inc)}</td>
+    <td style="color:var(--red);font-weight:700">${fmt(m.exp)}</td>
+    <td style="color:${p>=0?'var(--green)':'var(--red)'};font-weight:800">${p>=0?'+':''}${fmt(p)}</td>
+    <td><span style="font-size:12px;font-weight:800;padding:3px 9px;border-radius:20px;background:${p>=0?'var(--green2)':'var(--red2)'};color:${p>=0?'var(--green)':'var(--red)'}">${mg>0?'+':''}${mg}%</span></td>
+  </tr>`;}).join('');
+  document.getElementById('pageArea').innerHTML=`<div class="report-page">
+    <div class="report-card"><div class="report-card-hd"><div class="report-card-title"><i class="ti ti-scale" style="color:var(--blue)"></i>דוח רווח והפסד</div><div class="report-card-sub">השוואת הכנסות מול הוצאות</div></div>
+      <div class="hero-grid">
+        <div class="hc income"><div class="hc-label">סה"כ הכנסות</div><div class="hc-val">${fmt(totalInc)}</div><div class="hc-sub">${won.length} עסקאות</div></div>
+        <div class="hc expense"><div class="hc-label">סה"כ הוצאות</div><div class="hc-val">${fmt(totalExp)}</div><div class="hc-sub">${(D.expenses||[]).length} פריטים</div></div>
+        <div class="hc ${posClass?'profit-pos':'profit-neg'}"><div class="hc-label">רווח גולמי</div><div class="hc-val">${posClass?'+':''}${fmt(profit)}</div><div class="hc-sub">מרווח ${margin}%</div></div>
+        <div class="hc income"><div class="hc-label">הכנסות + מע"מ</div><div class="hc-val" style="font-size:16px">${fmt(totalInc*(1+VAT))}</div></div>
+        <div class="hc expense"><div class="hc-label">הוצאות + מע"מ</div><div class="hc-val" style="font-size:16px">${fmt(totalExp*(1+VAT))}</div></div>
+        <div class="hc ${posClass?'profit-pos':'profit-neg'}"><div class="hc-label">רווח + מע"מ</div><div class="hc-val" style="font-size:16px">${posClass?'+':''}${fmt(profit*(1+VAT))}</div></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">הכנסות מול הוצאות לפי חודש</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700"><span style="width:12px;height:12px;background:var(--green);border-radius:3px;display:inline-block"></span>הכנסות</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700"><span style="width:12px;height:12px;background:var(--red);border-radius:3px;display:inline-block"></span>הוצאות</div>
+      </div>
+      ${months.length?`<div class="bar-chart">${bars}</div>`:'<div class="empty" style="padding:30px"><i class="ti ti-chart-off"></i><p>אין נתונים</p></div>'}
+    </div>
+    <div class="report-card"><div class="report-card-hd"><div class="report-card-title">פירוט חודשי</div><div class="report-card-sub">לפני מע"מ</div></div>
+      <div style="overflow-x:auto"><table class="board-tbl" dir="rtl"><thead><tr><th>חודש</th><th>הכנסות</th><th>הוצאות</th><th>רווח גולמי</th><th>מרווח</th></tr></thead><tbody>${mRows||'<tr><td colspan="5"><div class="empty" style="padding:20px"><i class="ti ti-calendar-off"></i><p>אין נתונים</p></div></td></tr>'}</tbody>
+      <tfoot><tr><td>סה"כ</td><td style="color:var(--green);font-weight:800">${fmt(totalInc)}</td><td style="color:var(--red);font-weight:700">${fmt(totalExp)}</td><td style="color:${posClass?'var(--green)':'var(--red)'};font-weight:800">${posClass?'+':''}${fmt(profit)}</td><td><span style="font-size:12px;font-weight:800;padding:3px 9px;border-radius:20px;background:${posClass?'var(--green2)':'var(--red2)'};color:${posClass?'var(--green)':'var(--red)'}">${margin>0?'+':''}${margin}%</span></td></tr></tfoot></table></div>
+    </div>
+  </div>`;
+}
+function renderBoardHdr(){
+  if(!['leads','projects','clients'].includes(tab))return;
+  const ss=CFG[tab].statuses;
+  document.getElementById('boardHdrArea').innerHTML=`<div class="board-hdr">
+    <div class="view-tabs"><button class="vtab ${view==='table'?'on':''}" onclick="setView('table')"><i class="ti ti-table"></i> טבלה</button><button class="vtab ${view==='kanban'?'on':''}" onclick="setView('kanban')"><i class="ti ti-layout-kanban"></i> קנבן</button></div>
+    <select class="fsel" id="sfS" onchange="renderMain()"><option value="">כל הסטטוסים</option>${ss.map(s=>`<option>${s}</option>`).join('')}</select>
+    ${tab==='leads'?`<select class="fsel" id="sfP" onchange="renderMain()"><option value="">כל העדיפויות</option><option>גבוהה</option><option>בינונית</option><option>נמוכה</option></select>`:''}
+  </div>`;
+}
+function setView(v){view=v;renderBoardHdr();renderMain();}
+function filt(){
+  const q=(document.getElementById('searchInp')?.value||'').toLowerCase();
+  const ss=document.getElementById('sfS')?.value||'';const sp=document.getElementById('sfP')?.value||'';
+  return(D[tab]||[]).filter(i=>{const m=((i.name||'')+(i.company||'')).toLowerCase().includes(q);return m&&(!ss||i.status===ss)&&(!sp||i.priority===sp);});
+}
+function renderMain(){
+  if(['income','report'].includes(tab))return;
+  if(tab==='expenses'){renderExpensesKPI();renderExpFilter();renderExpMain();return;}
+  const items=filt();document.getElementById('hdrBadge').textContent=items.length;
+  document.getElementById('mainArea').innerHTML=view==='kanban'?mkKanban(items):mkTable(items);
+}
+function mkTable(items){
+  if(!items.length)return`<div style="background:var(--white);border-top:1px solid var(--border)"><div class="empty"><i class="ti ti-table-off"></i><p>לא נמצאו רשומות</p></div></div>`;
+  const h4=tab==='projects'?'התקדמות':tab==='clients'?'ערך שנתי':'ערך';
+  const h5=tab==='clients'?'איש קשר':tab==='projects'?'דדליין':'תאריך';
+  const h6=tab==='clients'?'עיר':'בעלים';
+  const rows=items.map((it,i)=>{
+    const pc=CFG[tab].pmap[it.status]||'p-new';const priCl=it.priority==='גבוהה'?'ph':it.priority==='בינונית'?'pm':'pl';
+    const c4=tab==='projects'?`<div style="display:flex;align-items:center;gap:8px"><div class="prog-track"><div class="prog-fill" style="width:${it.progress||0}%"></div></div><span style="font-size:12px;font-weight:600;color:var(--text2)">${it.progress||0}%</span></div>`:`<span style="font-weight:800;color:var(--blue)">${it.value?fmt(it.value):'—'}</span>`;
+    const c5=tab==='clients'?(it.contact||'—'):(it.date||'—');const c6=tab==='clients'?(it.city||'—'):(it.owner||'—');
+    return`<tr onclick="openPanel(${it.id})" class="${sId===it.id?'sel':''}"><td><div class="av-wrap"><div class="av" style="background:${avc(i)[0]};color:${avc(i)[1]}">${ini(it.name)}</div><div><div class="cell-main">${it.name}</div><div class="cell-sub">${it.company||''}</div></div></div></td><td><span class="pill ${pc}">${it.status}</span></td><td>${c4}</td><td style="color:var(--text2);font-size:13px;font-weight:500">${c5}</td><td style="color:var(--text2);font-size:13px;font-weight:500">${c6}</td>${tab==='leads'?`<td><div class="prio-chip"><span class="pd ${priCl}"></span>${it.priority||'—'}</div></td>`:''}<td><div class="td-acts"><button class="btn btn-icon" style="width:28px;height:28px;padding:0;justify-content:center" onclick="event.stopPropagation();openEdit(${it.id})"><i class="ti ti-pencil" style="font-size:14px"></i></button><button class="btn btn-icon" style="width:28px;height:28px;padding:0;justify-content:center;color:var(--red)" onclick="event.stopPropagation();del(${it.id})"><i class="ti ti-trash" style="font-size:14px"></i></button></div></td></tr>`;
+  }).join('');
+  return`<div style="background:var(--white);border-top:1px solid var(--border)"><div class="board-wrap"><table class="board-tbl" dir="rtl"><thead><tr><th>שם</th><th>סטטוס</th><th>${h4}</th><th>${h5}</th><th>${h6}</th>${tab==='leads'?'<th>עדיפות</th>':''}<th style="width:80px"></th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="${tab==='leads'?7:6}">${items.length} רשומות</td></tr></tfoot></table></div></div>`;
+}
+function mkKanban(items){
+  let h='<div class="kanban">';
+  CFG[tab].statuses.forEach((s,si)=>{
+    const cards=items.filter(i=>i.status===s);const pc=CFG[tab].pmap[s]||'p-new';const bc=CFG[tab].colors[si]||'#0073EA';
+    h+=`<div class="kcol"><div class="col-bar" style="background:${bc}"></div><div class="kcol-hd"><span class="pill ${pc}">${s}</span><span class="kcol-cnt">${cards.length}</span></div><div class="kcards">${cards.map(it=>`<div class="kcard" onclick="openPanel(${it.id})"><div class="kc-n">${it.name}</div><div class="kc-co">${it.company||''}</div><div class="kc-foot"><span class="kc-v">${it.value?fmt(it.value):''}</span><span class="kc-d">${it.date||''}</span></div></div>`).join('')}</div><button class="kadd" onclick="openAddS('${s}')"><i class="ti ti-plus"></i> הוסף פריט</button></div>`;
+  });
+  return h+'</div>';
+}
+function openPanel(id){
+  sId=id;
+  const src=tab==='expenses'?D.expenses:(D[tab]||[]);
+  const it=src.find(i=>i.id===id);if(!it)return;const idx=src.indexOf(it);
+  let rows='',badge='',avStyle='';
+  if(tab==='expenses'){
+    badge=`<span class="pill ${EXP_PILL[it.category]||'p-exp-other'}">${it.category||'אחר'}</span>`;avStyle='background:var(--red2);color:var(--red)';
+    rows=`<div class="pnl-row"><span class="pnl-lbl">סכום (ללא מע"מ)</span><span class="pnl-val red">${it.value?fmt(it.value):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">מע"מ (18%)</span><span class="pnl-val">${it.value?fmt(it.value*VAT):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val red">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">ספק</span><span class="pnl-val">${it.vendor||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">תאריך</span><span class="pnl-val">${it.date?mlabel(mkey(it.date)):'—'}</span></div>`;
+  }else{
+    const pc=CFG[tab].pmap[it.status]||'p-new';badge=`<span class="pill ${pc}">${it.status}</span>`;avStyle=`background:${avc(idx)[0]};color:${avc(idx)[1]}`;
+    const priCl=it.priority==='גבוהה'?'ph':it.priority==='בינונית'?'pm':'pl';
+    if(tab==='leads')rows=`<div class="pnl-row"><span class="pnl-lbl">ערך</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">עדיפות</span><span class="pnl-val"><div class="prio-chip"><span class="pd ${priCl}"></span>${it.priority||'—'}</div></span></div><div class="pnl-row"><span class="pnl-lbl">תאריך</span><span class="pnl-val">${it.date||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">בעלים</span><span class="pnl-val">${it.owner||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">טלפון</span><span class="pnl-val">${it.phone||'—'}</span></div>`;
+    else if(tab==='projects')rows=`<div class="pnl-row"><span class="pnl-lbl">תקציב</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">התקדמות</span><span class="pnl-val"><div style="display:flex;align-items:center;gap:8px"><div class="prog-track"><div class="prog-fill" style="width:${it.progress||0}%"></div></div>${it.progress||0}%</div></span></div><div class="pnl-row"><span class="pnl-lbl">דדליין</span><span class="pnl-val">${it.date||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">מנהל</span><span class="pnl-val">${it.owner||'—'}</span></div>`;
+    else rows=`<div class="pnl-row"><span class="pnl-lbl">ערך שנתי</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">איש קשר</span><span class="pnl-val">${it.contact||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">טלפון</span><span class="pnl-val">${it.phone||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">עיר</span><span class="pnl-val">${it.city||'—'}</span></div>`;
+  }
+  const p=document.getElementById('panel');
+  p.innerHTML=`<div class="pnl-hd"><div class="pnl-av-row"><div class="pnl-av" style="${avStyle}">${tab==='expenses'?'<i class="ti ti-receipt" style="font-size:18px"></i>':ini(it.name)}</div><div style="flex:1;min-width:0"><div class="pnl-name">${it.name}</div><div class="pnl-co">${it.company||it.vendor||''}</div>${badge}</div><button class="btn btn-icon" onclick="closePanel()"><i class="ti ti-x" style="font-size:15px"></i></button></div></div>
+  <div class="pnl-scroll"><div class="pnl-sec"><div class="pnl-sec-t">פרטים</div>${rows}</div><div class="pnl-sec"><div class="pnl-sec-t">הערות</div><textarea class="notes-ta" rows="4" placeholder="הוסף הערה..." onchange="saveNote(${it.id},this.value)">${it.notes||''}</textarea></div></div>
+  <div class="pnl-act"><button class="btn ${tab==='expenses'?'btn-red':'btn-blue'}" style="flex:1" onclick="openEdit(${it.id})"><i class="ti ti-pencil"></i> ערוך</button><button class="btn btn-outline" onclick="del(${it.id})" style="padding:7px 12px;color:var(--red)"><i class="ti ti-trash"></i></button></div>`;
+  p.classList.add('open');
+  if(!['income','report'].includes(tab))renderMain();
+}
+function closePanel(){sId=null;document.getElementById('panel').classList.remove('open');if(!['income','report'].includes(tab))renderMain();}
+function saveNote(id,v){const src=tab==='expenses'?D.expenses:(D[tab]||[]);const it=src.find(i=>i.id===id);if(it){it.notes=v;sv();}}
+function flds(it={}){
+  if(tab==='expenses'){
+    const co=EXP_CATS.map(c=>`<option${it.category===c?' selected':''}>${c}</option>`).join('');
+    const vh=it.value?`כולל מע"מ: ${fmt(it.value*(1+VAT))}`:'';
+    return`<div class="frow"><div class="fg"><label class="fl">תיאור הוצאה *</label><input class="fi" id="fn" value="${it.name||''}" placeholder="שם ההוצאה"></div><div class="fg"><label class="fl">ספק</label><input class="fi" id="fvn" value="${it.vendor||''}" placeholder="Meta, Adobe..."></div></div>
+    <div class="frow"><div class="fg"><label class="fl">קטגוריה</label><select class="fsl" id="fcat">${co}</select></div><div class="fg"><label class="fl">סכום (₪ ללא מע"מ)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--red)">${vh}</div></div></div>
+    <div class="fg"><label class="fl">תאריך</label><input class="fi" type="date" id="fd" value="${it.date||''}"></div>
+    <div class="fg"><label class="fl">הערות</label><textarea class="fta" id="fno">${it.notes||''}</textarea></div>`;
+  }
+  const ss=CFG[tab].statuses;const so=ss.map(s=>`<option${it.status===s?' selected':''}>${s}</option>`).join('');
+  const vh=it.value?`כולל מע"מ: ${fmt(it.value*(1+VAT))}`:'';
+  if(tab==='leads')return`
+    <div class="frow"><div class="fg"><label class="fl">שם מלא *</label><input class="fi" id="fn" value="${it.name||''}" placeholder="שם מלא"></div><div class="fg"><label class="fl">חברה</label><input class="fi" id="fco" value="${it.company||''}" placeholder="שם החברה"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">סטטוס</label><select class="fsl" id="fs">${so}</select></div><div class="fg"><label class="fl">עדיפות</label><select class="fsl" id="fp"><option${it.priority==='גבוהה'?' selected':''}>גבוהה</option><option${!it.priority||it.priority==='בינונית'?' selected':''}>בינונית</option><option${it.priority==='נמוכה'?' selected':''}>נמוכה</option></select></div></div>
+    <div class="frow"><div class="fg"><label class="fl">ערך (₪ לפני מע"מ)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--green)">${vh}</div></div><div class="fg"><label class="fl">תאריך</label><input class="fi" type="date" id="fd" value="${it.date||''}"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">בעלים</label><input class="fi" id="fow" value="${it.owner||'רן'}"></div><div class="fg"><label class="fl">טלפון</label><input class="fi" id="fph" value="${it.phone||''}" placeholder="05x-xxxxxxx"></div></div>
+    <div class="fg"><label class="fl">אימייל</label><input class="fi" id="fem" value="${it.email||''}" placeholder="name@company.co.il"></div>
+    <div class="fg"><label class="fl">הערות</label><textarea class="fta" id="fno">${it.notes||''}</textarea></div>`;
+  if(tab==='projects')return`
+    <div class="frow"><div class="fg"><label class="fl">שם פרויקט *</label><input class="fi" id="fn" value="${it.name||''}" placeholder="שם פרויקט"></div><div class="fg"><label class="fl">לקוח</label><input class="fi" id="fco" value="${it.company||''}" placeholder="שם לקוח"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">סטטוס</label><select class="fsl" id="fs">${so}</select></div><div class="fg"><label class="fl">תקציב (₪)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--green)">${vh}</div></div></div>
+    <div class="frow"><div class="fg"><label class="fl">התקדמות %</label><input class="fi" type="number" id="fpr" value="${it.progress||0}" min="0" max="100"></div><div class="fg"><label class="fl">דדליין</label><input class="fi" type="date" id="fd" value="${it.date||''}"></div></div>
+    <div class="fg"><label class="fl">מנהל פרויקט</label><input class="fi" id="fow" value="${it.owner||'רן'}"></div>
+    <div class="fg"><label class="fl">הערות</label><textarea class="fta" id="fno">${it.notes||''}</textarea></div>`;
+  return`
+    <div class="frow"><div class="fg"><label class="fl">שם לקוח *</label><input class="fi" id="fn" value="${it.name||''}" placeholder="שם לקוח"></div><div class="fg"><label class="fl">ענף</label><input class="fi" id="fco" value="${it.company||''}" placeholder="ענף עסקי"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">סטטוס</label><select class="fsl" id="fs">${so}</select></div><div class="fg"><label class="fl">ערך שנתי (₪)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--green)">${vh}</div></div></div>
+    <div class="frow"><div class="fg"><label class="fl">איש קשר</label><input class="fi" id="fct" value="${it.contact||''}" placeholder="שם"></div><div class="fg"><label class="fl">טלפון</label><input class="fi" id="fph" value="${it.phone||''}" placeholder="05x-xxxxxxx"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">אימייל</label><input class="fi" id="fem" value="${it.email||''}" placeholder="name@company.co.il"></div><div class="fg"><label class="fl">עיר</label><input class="fi" id="fci" value="${it.city||''}" placeholder="עיר"></div></div>
+    <div class="fg"><label class="fl">הערות</label><textarea class="fta" id="fno">${it.notes||''}</textarea></div>`;
+}
+function calcV(){const v=parseFloat(document.getElementById('fv')?.value)||0;const h=document.getElementById('vatH');if(h)h.textContent=v>0?`כולל מע"מ: ${fmt(v*(1+VAT))}`:''}
+function openAdd(ds){
+  eId=null;const icons={leads:'ti-users',projects:'ti-briefcase',clients:'ti-building',expenses:'ti-receipt'};
+  const color=tab==='expenses'?'var(--red)':'var(--blue)';
+  document.getElementById('mTitle').innerHTML=`<i class="ti ${icons[tab]||'ti-plus'}" style="color:${color}"></i>${CFG[tab].add}`;
+  document.getElementById('saveBtn').className='btn '+(tab==='expenses'?'btn-red':'btn-blue');
+  document.getElementById('mBody').innerHTML=flds({status:CFG[tab]?.statuses?.[0]});
+  document.getElementById('modal').classList.add('open');
+}
+function openAddS(s){eId=null;document.getElementById('mTitle').innerHTML=`<i class="ti ti-plus" style="color:var(--blue)"></i>${CFG[tab].add}`;document.getElementById('saveBtn').className='btn btn-blue';document.getElementById('mBody').innerHTML=flds({status:s});document.getElementById('modal').classList.add('open');}
+function openEdit(id){
+  eId=id;const src=tab==='expenses'?D.expenses:(D[tab]||[]);const it=src.find(i=>i.id===id);if(!it)return;
+  const color=tab==='expenses'?'var(--red)':'var(--blue)';
+  document.getElementById('mTitle').innerHTML=`<i class="ti ti-pencil" style="color:${color}"></i> עריכה`;
+  document.getElementById('saveBtn').className='btn '+(tab==='expenses'?'btn-red':'btn-blue');
+  document.getElementById('mBody').innerHTML=flds(it);document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');eId=null;}
+function saveItem(){
+  const name=document.getElementById('fn')?.value.trim();if(!name){toast('נדרש שם!','e');return;}
+  const v=parseFloat(document.getElementById('fv')?.value)||0;
+  if(tab==='expenses'){
+    const it={name,vendor:document.getElementById('fvn')?.value||'',category:document.getElementById('fcat')?.value||'אחר',value:v,date:document.getElementById('fd')?.value||'',notes:document.getElementById('fno')?.value||''};
+    if(eId){const x=(D.expenses||[]).findIndex(i=>i.id===eId);if(x>=0){it.id=eId;D.expenses[x]=it;}}else{it.id=Date.now();if(!D.expenses)D.expenses=[];D.expenses.push(it);}
+    sv();closeModal();renderExpensesKPI();renderExpFilter();renderExpMain();if(it.id)openPanel(it.id);toast(eId?'עודכן':'נוסף','s');return;
+  }
+  const it={name,company:document.getElementById('fco')?.value||'',status:document.getElementById('fs')?.value||CFG[tab].statuses[0],value:v,priority:document.getElementById('fp')?.value||'',date:document.getElementById('fd')?.value||'',owner:document.getElementById('fow')?.value||'רן',phone:document.getElementById('fph')?.value||'',email:document.getElementById('fem')?.value||'',contact:document.getElementById('fct')?.value||'',city:document.getElementById('fci')?.value||'',progress:parseInt(document.getElementById('fpr')?.value)||0,notes:document.getElementById('fno')?.value||''};
+  if(eId){const x=(D[tab]||[]).findIndex(i=>i.id===eId);if(x>=0){it.id=eId;D[tab][x]=it;}}else{it.id=Date.now();D[tab].push(it);}
+  sv();closeModal();renderKPI();renderBoardHdr();renderMain();if(it.id)openPanel(it.id);toast(eId?'עודכן בהצלחה':'נוסף בהצלחה','s');
+}
+function del(id){
+  if(!confirm('למחוק?'))return;
+  if(tab==='expenses')D.expenses=(D.expenses||[]).filter(i=>i.id!==id);else D[tab]=(D[tab]||[]).filter(i=>i.id!==id);
+  sv();if(sId===id)closePanel();
+  if(tab==='expenses'){renderExpensesKPI();renderExpMain();}else{renderKPI();renderMain();}
+  toast('נמחק','s');
+}
+function toast(msg,type='s'){
+  const t=document.getElementById('toast');t.className='toast '+(type==='e'?'e':'s');
+  t.querySelector('i').className=type==='e'?'ti ti-alert-circle':'ti ti-circle-check';
+  document.getElementById('tMsg').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closePanel();}});
+go('leads');
+</script>
+</body>
+</html>
