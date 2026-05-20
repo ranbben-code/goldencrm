@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F6F7FB">
 <title>GoldenCRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -255,7 +255,7 @@ tr:hover .td-acts{opacity:1}
 }
 
 
-/* ── MOBILE OVERRIDES ── */
+@keyframes spin { to { transform: rotate(360deg) } }
 @media(max-width:768px){
   .app{flex-direction:column}
   .sb{display:none}
@@ -280,34 +280,26 @@ tr:hover .td-acts{opacity:1}
   .charts-row{grid-template-columns:1fr}
   .hero-grid{grid-template-columns:1fr 1fr;padding:14px 16px}
   .hc-val{font-size:17px}
-  .income-page{padding:14px 16px}
-  .board-hdr .view-tabs{flex:1}
-  .vtab{padding:6px 10px;font-size:12px}
 }
-/* Mobile bottom nav */
 .mob-nav{
-  display:none;
-  position:fixed;bottom:0;left:0;right:0;
+  display:none;position:fixed;bottom:0;left:0;right:0;
   background:var(--white);border-top:1.5px solid var(--border);
   z-index:100;padding:6px 0 calc(6px + env(safe-area-inset-bottom));
   justify-content:space-around;
 }
 .mob-nav-item{
   display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:4px 10px;border-radius:var(--r2);
+  padding:4px 8px;border-radius:var(--r2);
   background:transparent;border:none;cursor:pointer;
-  font-family:'Figtree',sans-serif;transition:all .12s;
-  min-width:52px;
+  font-family:'Figtree',sans-serif;transition:all .12s;min-width:48px;
 }
 .mob-nav-item i{font-size:22px;color:var(--text3)}
 .mob-nav-item span{font-size:10px;font-weight:700;color:var(--text4)}
 .mob-nav-item.on i{color:var(--blue)}
 .mob-nav-item.on span{color:var(--blue)}
-.mob-content-pad{height:70px}
+.mob-content-pad{height:72px}
 
-@keyframes spin { to { transform: rotate(360deg) } }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
 <div class="app">
@@ -319,13 +311,13 @@ tr:hover .td-acts{opacity:1}
   </div>
   <nav class="sb-nav">
     <div class="sb-sec">ניהול</div>
-    <button class="sb-item on" onclick="go('leads')" id="t-leads"><i class="ti ti-users"></i><span>לידים</span></button>
-    <button class="sb-item" onclick="go('projects')" id="t-projects"><i class="ti ti-briefcase"></i><span>פרויקטים</span></button>
-    <button class="sb-item" onclick="go('clients')" id="t-clients"><i class="ti ti-building"></i><span>לקוחות</span></button>
+    <button class="sb-item on" onclick="goTab('leads')" id="t-leads"><i class="ti ti-users"></i><span>לידים</span></button>
+    <button class="sb-item" onclick="goTab('projects')" id="t-projects"><i class="ti ti-briefcase"></i><span>פרויקטים</span></button>
+    <button class="sb-item" onclick="goTab('clients')" id="t-clients"><i class="ti ti-building"></i><span>לקוחות</span></button>
     <div class="sb-sec" style="margin-top:8px">כספים</div>
-    <button class="sb-item" onclick="go('income')" id="t-income"><i class="ti ti-chart-bar"></i><span>הכנסות</span></button>
-    <button class="sb-item" onclick="go('expenses')" id="t-expenses"><i class="ti ti-receipt"></i><span>הוצאות</span></button>
-    <button class="sb-item" onclick="go('report')" id="t-report"><i class="ti ti-scale"></i><span>רווח והפסד</span></button>
+    <button class="sb-item" onclick="goTab('income')" id="t-income"><i class="ti ti-chart-bar"></i><span>הכנסות</span></button>
+    <button class="sb-item" onclick="goTab('expenses')" id="t-expenses"><i class="ti ti-receipt"></i><span>הוצאות</span></button>
+    <button class="sb-item" onclick="goTab('report')" id="t-report"><i class="ti ti-scale"></i><span>רווח והפסד</span></button>
   </nav>
   <div class="sb-bottom">
     <div class="sb-user">
@@ -359,17 +351,15 @@ tr:hover .td-acts{opacity:1}
 <div class="panel" id="panel"></div>
 </div>
 
-<!-- MOBILE BOTTOM NAV -->
 <nav class="mob-nav" id="mobNav">
-  <button class="mob-nav-item on" onclick="go('leads')" id="m-leads"><i class="ti ti-users"></i><span>לידים</span></button>
-  <button class="mob-nav-item" onclick="go('projects')" id="m-projects"><i class="ti ti-briefcase"></i><span>פרויקטים</span></button>
-  <button class="mob-nav-item" onclick="go('clients')" id="m-clients"><i class="ti ti-building"></i><span>לקוחות</span></button>
-  <button class="mob-nav-item" onclick="go('income')" id="m-income"><i class="ti ti-chart-bar"></i><span>הכנסות</span></button>
-  <button class="mob-nav-item" onclick="go('expenses')" id="m-expenses"><i class="ti ti-receipt"></i><span>הוצאות</span></button>
-  <button class="mob-nav-item" onclick="go('report')" id="m-report"><i class="ti ti-scale"></i><span>דוח</span></button>
+  <button class="mob-nav-item on" onclick="goTab('leads')" id="m-leads"><i class="ti ti-users"></i><span>לידים</span></button>
+  <button class="mob-nav-item" onclick="goTab('projects')" id="m-projects"><i class="ti ti-briefcase"></i><span>פרויקטים</span></button>
+  <button class="mob-nav-item" onclick="goTab('clients')" id="m-clients"><i class="ti ti-building"></i><span>לקוחות</span></button>
+  <button class="mob-nav-item" onclick="goTab('income')" id="m-income"><i class="ti ti-chart-bar"></i><span>הכנסות</span></button>
+  <button class="mob-nav-item" onclick="goTab('expenses')" id="m-expenses"><i class="ti ti-receipt"></i><span>הוצאות</span></button>
+  <button class="mob-nav-item" onclick="goTab('report')" id="m-report"><i class="ti ti-scale"></i><span>דוח</span></button>
 </nav>
 
-<!-- MODAL -->
 <div class="overlay" id="modal">
   <div class="modal">
     <div class="modal-hd">
@@ -387,6 +377,148 @@ tr:hover .td-acts{opacity:1}
 <div class="toast" id="toast"><i class="ti ti-circle-check"></i><span id="tMsg"></span></div>
 
 <script>
+
+// ═══════════════════════════════════════════
+// SUPABASE CONFIG
+// ═══════════════════════════════════════════
+const SUPA_URL = 'https://roxeqjunkudhsricevhj.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJveGVxanVua3VkaHNyaWNldmhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM0MzAsImV4cCI6MjA5NDg1OTQzMH0._h_9TL4mNw-J7Kqf1l5elwnrd6WKgqHIUB4javzQ-OI';
+let _sbClient = null;
+
+function getSB() {
+  if (!_sbClient) {
+    _sbClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  }
+  return _sbClient;
+}
+
+function showLoader(on) {
+  let el = document.getElementById('__loader');
+  if (on && !el) {
+    el = document.createElement('div');
+    el.id = '__loader';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(246,247,251,.96);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:Figtree,sans-serif';
+    el.innerHTML = '<div style="width:42px;height:42px;border:3px solid #D0D4E0;border-top-color:#0073EA;border-radius:50%;animation:spin .7s linear infinite"></div><span style="font-size:14px;font-weight:700;color:#676879">טוען נתונים מהענן...</span>';
+    document.body.appendChild(el);
+  } else if (!on && el) {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity .3s';
+    setTimeout(() => el.remove(), 300);
+  }
+}
+
+async function loadFromCloud() {
+  showLoader(true);
+  try {
+    const sb = getSB();
+    const [r1, r2, r3, r4] = await Promise.all([
+      sb.from('leads').select('*').order('id'),
+      sb.from('projects').select('*').order('id'),
+      sb.from('clients').select('*').order('id'),
+      sb.from('expenses').select('*').order('id'),
+    ]);
+    if (r1.error) throw r1.error;
+    if (r2.error) throw r2.error;
+    if (r3.error) throw r3.error;
+    if (r4.error) throw r4.error;
+    D.leads = r1.data || [];
+    D.projects = r2.data || [];
+    D.clients = r3.data || [];
+    D.expenses = r4.data || [];
+    sv();
+    console.log('✓ Supabase loaded:', D.leads.length, 'leads');
+  } catch(e) {
+    console.warn('Supabase error:', e.message || e);
+    toast('מצב אופליין — נתונים מקומיים', 'e');
+  }
+  showLoader(false);
+  goTab('leads');
+}
+
+async function saveItem() {
+  const name = document.getElementById('fn')?.value.trim();
+  if (!name) { toast('נדרש שם!', 'e'); return; }
+  const v = parseFloat(document.getElementById('fv')?.value) || 0;
+  const tbl = tab === 'expenses' ? 'expenses' : tab;
+
+  let item;
+  if (tab === 'expenses') {
+    item = {
+      name,
+      vendor: document.getElementById('fvn')?.value || '',
+      category: document.getElementById('fcat')?.value || 'אחר',
+      value: v,
+      date: document.getElementById('fd')?.value || '',
+      notes: document.getElementById('fno')?.value || ''
+    };
+  } else {
+    item = {
+      name,
+      company: document.getElementById('fco')?.value || '',
+      status: document.getElementById('fs')?.value || CFG[tab].statuses[0],
+      value: v,
+      priority: document.getElementById('fp')?.value || '',
+      date: document.getElementById('fd')?.value || '',
+      owner: document.getElementById('fow')?.value || 'רן',
+      phone: document.getElementById('fph')?.value || '',
+      email: document.getElementById('fem')?.value || '',
+      contact: document.getElementById('fct')?.value || '',
+      city: document.getElementById('fci')?.value || '',
+      progress: parseInt(document.getElementById('fpr')?.value) || 0,
+      notes: document.getElementById('fno')?.value || ''
+    };
+  }
+
+  try {
+    const sb = getSB();
+    let saved;
+    if (eId) {
+      const { data, error } = await sb.from(tbl).update(item).eq('id', eId).select();
+      if (error) throw error;
+      saved = data[0] || { ...item, id: eId };
+      const arr = tab === 'expenses' ? D.expenses : D[tab];
+      const x = arr.findIndex(i => i.id === eId);
+      if (x >= 0) arr[x] = saved;
+    } else {
+      const { data, error } = await sb.from(tbl).insert(item).select();
+      if (error) throw error;
+      saved = data[0] || { ...item, id: Date.now() };
+      if (tab === 'expenses') D.expenses.push(saved);
+      else D[tab].push(saved);
+    }
+    sv();
+    closeModal();
+    if (tab === 'expenses') { renderExpensesKPI(); renderExpFilter(); renderExpMain(); }
+    else { renderKPI(); renderBoardHdr(); renderMain(); }
+    if (saved.id) openPanel(saved.id);
+    toast(eId ? 'עודכן בהצלחה ✓' : 'נוסף בהצלחה ✓', 's');
+  } catch(e) {
+    console.error('Save error:', e);
+    toast('שגיאה: ' + (e.message || 'בדוק חיבור'), 'e');
+  }
+}
+
+async function del(id) {
+  if (!confirm('למחוק?')) return;
+  const tbl = tab === 'expenses' ? 'expenses' : tab;
+  try {
+    const { error } = await getSB().from(tbl).delete().eq('id', id);
+    if (error) throw error;
+    if (tab === 'expenses') D.expenses = D.expenses.filter(i => i.id !== id);
+    else D[tab] = D[tab].filter(i => i.id !== id);
+    sv();
+    if (sId === id) closePanel();
+    if (tab === 'expenses') { renderExpensesKPI(); renderExpMain(); }
+    else { renderKPI(); renderMain(); }
+    toast('נמחק ✓', 's');
+  } catch(e) {
+    toast('שגיאה: ' + (e.message || ''), 'e');
+  }
+}
+
+// ═══════════════════════════════════════════
+// CRM LOGIC
+// ═══════════════════════════════════════════
 
 const SK='gcrm_v5';
 const VAT=0.18;
@@ -784,135 +916,20 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeP
 go('leads');
 
 
-// Mobile nav sync
-const _origGo = go;
-function go(t) {
-  _origGo(t);
-  document.querySelectorAll('.mob-nav-item').forEach(b=>b.classList.remove('on'));
-  const mb = document.getElementById('m-'+t);
+// Mobile nav
+function goTab(t) {
+  go(t);
+  document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('on'));
+  const mb = document.getElementById('m-' + t);
   if (mb) mb.classList.add('on');
 }
 
+document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closePanel(); } });
 
-// ══ SUPABASE via official JS SDK ══
-const SUPA_URL = 'https://roxeqjunkudhsricevhj.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJveGVxanVua3VkaHNyaWNldmhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM0MzAsImV4cCI6MjA5NDg1OTQzMH0._h_9TL4mNw-J7Kqf1l5elwnrd6WKgqHIUB4javzQ-OI';
-
-// Use the official Supabase JS client loaded via CDN
-let _sb = null;
-function getSB() {
-  if (!_sb) _sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-  return _sb;
-}
-
-async function sbGet(table) {
-  const { data, error } = await getSB().from(table).select('*').order('id');
-  if (error) throw error;
-  return data || [];
-}
-
-async function sbInsert(table, item) {
-  const { data, error } = await getSB().from(table).insert(item).select();
-  if (error) throw error;
-  return data[0];
-}
-
-async function sbUpdate(table, id, item) {
-  const { data, error } = await getSB().from(table).update(item).eq('id', id).select();
-  if (error) throw error;
-  return data[0];
-}
-
-async function sbDelete(table, id) {
-  const { error } = await getSB().from(table).delete().eq('id', id);
-  if (error) throw error;
-}
-
-function showLoader(on) {
-  let el = document.getElementById('__loader');
-  if (on && !el) {
-    el = document.createElement('div');
-    el.id = '__loader';
-    el.style.cssText = 'position:fixed;inset:0;background:rgba(246,247,251,.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:Figtree,sans-serif';
-    el.innerHTML = `<div style="width:42px;height:42px;border:3px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite"></div><span style="font-size:14px;font-weight:700;color:var(--text2)">טוען נתונים מהענן...</span>`;
-    document.body.appendChild(el);
-  } else if (!on && el) {
-    el.style.opacity='0'; el.style.transition='opacity .3s';
-    setTimeout(()=>el.remove(), 300);
-  }
-}
-
-async function loadFromCloud() {
-  showLoader(true);
-  try {
-    const [leads, projects, clients, expenses] = await Promise.all([
-      sbGet('leads'), sbGet('projects'), sbGet('clients'), sbGet('expenses')
-    ]);
-    D.leads=leads; D.projects=projects; D.clients=clients; D.expenses=expenses;
-    sv();
-    console.log('✓ Supabase loaded', {leads:leads.length, projects:projects.length, clients:clients.length, expenses:expenses.length});
-  } catch(e) {
-    console.warn('Supabase failed, using localStorage:', e.message);
-    toast('מצב אופליין — נתונים מקומיים','e');
-  }
-  showLoader(false);
-  go('leads');
-}
-
-async function saveItem() {
-  const name = document.getElementById('fn')?.value.trim();
-  if (!name) { toast('נדרש שם!','e'); return; }
-  const v = parseFloat(document.getElementById('fv')?.value)||0;
-  const tbl = tab==='expenses' ? 'expenses' : tab;
-  let item;
-  if (tab==='expenses') {
-    item = { name, vendor:document.getElementById('fvn')?.value||'', category:document.getElementById('fcat')?.value||'אחר', value:v, date:document.getElementById('fd')?.value||'', notes:document.getElementById('fno')?.value||'' };
-  } else {
-    item = { name, company:document.getElementById('fco')?.value||'', status:document.getElementById('fs')?.value||CFG[tab].statuses[0], value:v, priority:document.getElementById('fp')?.value||'', date:document.getElementById('fd')?.value||'', owner:document.getElementById('fow')?.value||'רן', phone:document.getElementById('fph')?.value||'', email:document.getElementById('fem')?.value||'', contact:document.getElementById('fct')?.value||'', city:document.getElementById('fci')?.value||'', progress:parseInt(document.getElementById('fpr')?.value)||0, notes:document.getElementById('fno')?.value||'' };
-  }
-  try {
-    let saved;
-    if (eId) {
-      saved = await sbUpdate(tbl, eId, item);
-      if (!saved) saved = {...item, id:eId};
-      const arr = tab==='expenses' ? D.expenses : D[tab];
-      const x = arr.findIndex(i=>i.id===eId);
-      if (x>=0) arr[x] = saved;
-    } else {
-      saved = await sbInsert(tbl, item);
-      if (!saved) saved = {...item, id:Date.now()};
-      if (tab==='expenses') D.expenses.push(saved);
-      else D[tab].push(saved);
-    }
-    sv(); closeModal();
-    if (tab==='expenses') { renderExpensesKPI(); renderExpFilter(); renderExpMain(); }
-    else { renderKPI(); renderBoardHdr(); renderMain(); }
-    if (saved.id) openPanel(saved.id);
-    toast(eId?'עודכן בהצלחה ✓':'נוסף בהצלחה ✓','s');
-  } catch(e) {
-    console.error('Save error:', e);
-    toast('שגיאה בשמירה: '+e.message,'e');
-  }
-}
-
-async function del(id) {
-  if (!confirm('למחוק?')) return;
-  const tbl = tab==='expenses' ? 'expenses' : tab;
-  try {
-    await sbDelete(tbl, id);
-    if (tab==='expenses') D.expenses = D.expenses.filter(i=>i.id!==id);
-    else D[tab] = D[tab].filter(i=>i.id!==id);
-    sv();
-    if (sId===id) closePanel();
-    if (tab==='expenses') { renderExpensesKPI(); renderExpMain(); }
-    else { renderKPI(); renderMain(); }
-    toast('נמחק ✓','s');
-  } catch(e) {
-    toast('שגיאה במחיקה: '+e.message,'e');
-  }
-}
-
+// Start
 loadFromCloud();
+
 </script>
 </body>
 </html>
