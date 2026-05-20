@@ -218,6 +218,9 @@ tr:hover .td-acts{opacity:1}
 .overlay{display:none;position:fixed;inset:0;background:rgba(40,50,90,.45);backdrop-filter:blur(3px);z-index:1000;align-items:center;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:var(--white);border-radius:var(--r2);width:560px;max-width:96vw;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);animation:popIn .2s cubic-bezier(.34,1.56,.64,1)}
+
+@keyframes spin { to { transform: rotate(360deg) } }
+
 @keyframes popIn{from{opacity:0;transform:scale(.93) translateY(12px)}}
 .modal-hd{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .modal-title{font-size:17px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:9px;letter-spacing:-.3px}
@@ -686,7 +689,147 @@ function toast(msg,type='s'){
 }
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closePanel();}});
-go('leads');
+
+// ══ SUPABASE ══
+const SUPA_URL = 'https://roxeqjunkudhsricevhj.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJveGVxanVua3VkaHNyaWNldmhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM0MzAsImV4cCI6MjA5NDg1OTQzMH0._h_9TL4mNw-J7Kqf1l5elwnrd6WKgqHIUB4javzQ-OI';
+
+async function sbFetch(method, table, body=null, id=null) {
+  const url = id
+    ? `${SUPA_URL}/rest/v1/${table}?id=eq.${id}`
+    : `${SUPA_URL}/rest/v1/${table}`;
+  const headers = {
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + SUPA_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': method==='POST' ? 'return=representation' : 'return=representation'
+  };
+  const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
+  if (!res.ok) { const e = await res.text(); console.error('Supabase error:', e); return null; }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+async function loadFromSupabase() {
+  showLoading(true);
+  try {
+    const [leads, projects, clients, expenses] = await Promise.all([
+      sbFetch('GET','leads?order=id'),
+      sbFetch('GET','projects?order=id'),
+      sbFetch('GET','clients?order=id'),
+      sbFetch('GET','expenses?order=id'),
+    ]);
+    D.leads = leads || [];
+    D.projects = projects || [];
+    D.clients = clients || [];
+    D.expenses = expenses || [];
+    sv(); // cache locally too
+  } catch(e) {
+    console.warn('Supabase load failed, using local data:', e);
+  }
+  showLoading(false);
+  go('leads');
+}
+
+function showLoading(on) {
+  let el = document.getElementById('loadingOverlay');
+  if (on) {
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'loadingOverlay';
+      el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+        <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite"></div>
+        <span style="font-size:14px;font-weight:600;color:var(--text2)">טוען נתונים...</span>
+      </div>`;
+      el.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;font-family:Figtree,sans-serif';
+      document.body.appendChild(el);
+    }
+  } else {
+    if (el) el.remove();
+  }
+}
+
+// Override saveItem to also sync with Supabase
+const _origSaveItem = saveItem;
+async function saveItem() {
+  const name = document.getElementById('fn')?.value.trim();
+  if (!name) { toast('נדרש שם!','e'); return; }
+  const v = parseFloat(document.getElementById('fv')?.value)||0;
+  const tbl = tab === 'expenses' ? 'expenses' : tab;
+  let item;
+  if (tab === 'expenses') {
+    item = {
+      name,
+      vendor: document.getElementById('fvn')?.value||'',
+      category: document.getElementById('fcat')?.value||'אחר',
+      value: v,
+      date: document.getElementById('fd')?.value||'',
+      notes: document.getElementById('fno')?.value||''
+    };
+  } else {
+    item = {
+      name,
+      company: document.getElementById('fco')?.value||'',
+      status: document.getElementById('fs')?.value||CFG[tab].statuses[0],
+      value: v,
+      priority: document.getElementById('fp')?.value||'',
+      date: document.getElementById('fd')?.value||'',
+      owner: document.getElementById('fow')?.value||'רן',
+      phone: document.getElementById('fph')?.value||'',
+      email: document.getElementById('fem')?.value||'',
+      contact: document.getElementById('fct')?.value||'',
+      city: document.getElementById('fci')?.value||'',
+      progress: parseInt(document.getElementById('fpr')?.value)||0,
+      notes: document.getElementById('fno')?.value||''
+    };
+  }
+  try {
+    let result;
+    if (eId) {
+      result = await sbFetch('PATCH', tbl, item, eId);
+      const arr = tab==='expenses' ? D.expenses : D[tab];
+      const x = arr.findIndex(i=>i.id===eId);
+      if (x>=0 && result && result[0]) arr[x] = result[0];
+    } else {
+      result = await sbFetch('POST', tbl, item);
+      if (result && result[0]) {
+        if (tab==='expenses') D.expenses.push(result[0]);
+        else D[tab].push(result[0]);
+        item = result[0];
+      }
+    }
+    sv();
+    closeModal();
+    if (tab==='expenses') { renderExpensesKPI(); renderExpFilter(); renderExpMain(); }
+    else { renderKPI(); renderBoardHdr(); renderMain(); }
+    if (item.id) openPanel(item.id);
+    toast(eId?'עודכן בהצלחה':'נוסף בהצלחה','s');
+  } catch(e) {
+    console.error(e);
+    toast('שגיאה בשמירה','e');
+  }
+}
+
+// Override del
+const _origDel = del;
+async function del(id) {
+  if (!confirm('למחוק?')) return;
+  const tbl = tab==='expenses' ? 'expenses' : tab;
+  try {
+    await sbFetch('DELETE', tbl, null, id);
+    if (tab==='expenses') D.expenses = D.expenses.filter(i=>i.id!==id);
+    else D[tab] = D[tab].filter(i=>i.id!==id);
+    sv();
+    if (sId===id) closePanel();
+    if (tab==='expenses') { renderExpensesKPI(); renderExpMain(); }
+    else { renderKPI(); renderMain(); }
+    toast('נמחק','s');
+  } catch(e) {
+    toast('שגיאה במחיקה','e');
+  }
+}
+
+loadFromSupabase();
 </script>
 </body>
 </html>
