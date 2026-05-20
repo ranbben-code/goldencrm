@@ -248,7 +248,8 @@ tr:hover .td-acts{opacity:1}
   .sb-name,.sb-item span,.sb-sec,.sb-utext{display:none!important}
   .kpi-wrap{padding:14px;grid-template-columns:1fr 1fr}
   .charts-row{grid-template-columns:1fr}
-  .panel.open{width:100%;position:fixed;inset:0;z-index:200;border:none}
+  .panel{display:none}
+  .panel.open{display:flex;width:100%;position:fixed;inset:0;z-index:200;border:none}
   .panel:not(.open){display:none!important}
   .frow{grid-template-columns:1fr}
   .hdr{padding:0 14px}.search-inp{width:150px}
@@ -271,7 +272,8 @@ tr:hover .td-acts{opacity:1}
   .board-tbl{font-size:13px}.board-tbl td{padding:10px 12px}
   .board-tbl thead th{padding:8px 12px;font-size:11px}
   .kanban{padding:14px;gap:10px}.kcol{min-width:195px;width:195px}
-  .panel.open{width:100%;position:fixed;inset:0;z-index:200;border:none}
+  .panel{display:none}
+  .panel.open{display:flex;width:100%;position:fixed;inset:0;z-index:200;border:none}
   .panel:not(.open){display:none!important}
   .frow{grid-template-columns:1fr}
   .report-page{padding:14px}.charts-row{grid-template-columns:1fr}
@@ -647,10 +649,19 @@ function openPanel(id){
   p.innerHTML=`<div class="pnl-hd"><div class="pnl-av-row"><div class="pnl-av" style="${avStyle}">${tab==='expenses'?'<i class="ti ti-receipt" style="font-size:18px"></i>':ini(it.name)}</div><div style="flex:1;min-width:0"><div class="pnl-name">${it.name}</div><div class="pnl-co">${it.company||it.vendor||''}</div>${badge}</div><button class="btn btn-icon" onclick="closePanel()"><i class="ti ti-x" style="font-size:15px"></i></button></div></div>
   <div class="pnl-scroll"><div class="pnl-sec"><div class="pnl-sec-t">פרטים</div>${rows}</div><div class="pnl-sec"><div class="pnl-sec-t">הערות</div><textarea class="notes-ta" rows="4" placeholder="הוסף הערה..." onchange="saveNote(${it.id},this.value)">${it.notes||''}</textarea></div></div>
   <div class="pnl-act"><button class="btn ${tab==='expenses'?'btn-red':'btn-blue'}" style="flex:1" onclick="openEdit(${it.id})"><i class="ti ti-pencil"></i> ערוך</button><button class="btn btn-outline" onclick="del(${it.id})" style="padding:7px 12px;color:var(--red)"><i class="ti ti-trash"></i></button></div>`;
+  p.style.display='';
   p.classList.add('open');
   if(!['income','report'].includes(tab))renderMain();
 }
-function closePanel(){sId=null;document.getElementById('panel').classList.remove('open');if(!['income','report'].includes(tab))renderMain();}
+function closePanel(){
+  sId=null;
+  const p=document.getElementById('panel');
+  p.classList.remove('open');
+  p.innerHTML='';
+  p.style.display='none';
+  setTimeout(()=>{p.style.display='';},50);
+  if(!['income','report'].includes(tab))renderMain();
+}
 function saveNote(id,v){const src=tab==='expenses'?D.expenses:(D[tab]||[]);const it=src.find(i=>i.id===id);if(it){it.notes=v;sv();}}
 function flds(it={}){
   if(tab==='expenses'){
