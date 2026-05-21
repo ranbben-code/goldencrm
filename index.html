@@ -710,8 +710,10 @@ function openPanel(id){
         <textarea class="notes-ta" rows="4" placeholder="הוסף הערה..." onchange="saveNote(${it.id},this.value)">${it.notes||''}</textarea>
       </div>
     </div>
-    <div class="pnl-act">
+    <div class="pnl-act" style="flex-wrap:wrap;gap:8px">
       <button class="btn ${tab==='expenses'?'btn-red':'btn-blue'}" style="flex:1" onclick="openEdit(${it.id})"><i class="ti ti-pencil"></i> ערוך</button>
+      ${tab==='leads'?`<button class="btn btn-outline" style="flex:1;color:var(--green);border-color:var(--green)" onclick="convertToClient(${it.id})"><i class="ti ti-user-plus"></i> המר ללקוח</button>`:''}
+      ${tab==='clients'?`<button class="btn btn-outline" style="flex:1;color:var(--blue);border-color:var(--blue)" onclick="createProjectFromClient(${it.id})"><i class="ti ti-briefcase"></i> צור פרויקט</button>`:''}
       <button class="btn btn-outline" onclick="del(${it.id})" style="padding:7px 12px;color:var(--red)"><i class="ti ti-trash"></i></button>
     </div>
   `;
@@ -735,6 +737,62 @@ function quickStatus(id, newStatus) {
     // Re-open panel to refresh badge
     openPanel(id);
   });
+}
+
+
+// ── Convert lead to client ──
+async function convertToClient(id) {
+  const lead = D.leads.find(i=>i.id===id);
+  if (!lead) return;
+  if (!confirm(`להמיר את "${lead.name}" ללקוח חדש?`)) return;
+  try {
+    const sb = getSB();
+    // Create client
+    const clientItem = {
+      name: lead.name,
+      company: lead.company||'',
+      status: 'פעיל',
+      value: lead.value||0,
+      contact: lead.name,
+      phone: lead.phone||'',
+      email: lead.email||'',
+      city: lead.city||'',
+      notes: lead.notes||''
+    };
+    const {data:cData, error:cErr} = await sb.from('clients').insert(clientItem).select();
+    if (cErr) throw cErr;
+    D.clients.push(cData[0]);
+    // Update lead status
+    const {error:lErr} = await sb.from('leads').update({status:'נסגר - הכנסה'}).eq('id',id);
+    if (lErr) throw lErr;
+    lead.status = 'נסגר - הכנסה';
+    sv();
+    toast(`${lead.name} הומר ללקוח ✓`,'s');
+    closePanel();
+    renderKPI(); renderMain();
+  } catch(e) {
+    toast('שגיאה: '+(e.message||''),'e');
+  }
+}
+
+// ── Create project from client ──
+function createProjectFromClient(id) {
+  const client = D.clients.find(i=>i.id===id);
+  if (!client) return;
+  // Switch to projects tab and open add modal with client name pre-filled
+  closePanel();
+  go('projects');
+  renderBoardHdr();
+  renderMain();
+  // Small delay to let UI update
+  setTimeout(()=>{
+    openAdd();
+    // Pre-fill client name
+    const fco = document.getElementById('fco');
+    if (fco) fco.value = client.name;
+    // Update modal title
+    document.getElementById('mTitle').innerHTML = `<i class="ti ti-briefcase" style="color:var(--green)"></i> פרויקט חדש — ${client.name}`;
+  }, 100);
 }
 
 function closePanel(){
