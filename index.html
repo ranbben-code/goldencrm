@@ -639,19 +639,77 @@ function openPanel(id){
   const it=src.find(i=>i.id===id);if(!it)return;const idx=src.indexOf(it);
   let rows='',badge='',avStyle='';
   if(tab==='expenses'){
-    badge=`<span class="pill ${EXP_PILL[it.category]||'p-exp-other'}">${it.category||'אחר'}</span>`;avStyle='background:var(--red2);color:var(--red)';
-    rows=`<div class="pnl-row"><span class="pnl-lbl">סכום (ללא מע"מ)</span><span class="pnl-val red">${it.value?fmt(it.value):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">מע"מ (18%)</span><span class="pnl-val">${it.value?fmt(it.value*VAT):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val red">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">ספק</span><span class="pnl-val">${it.vendor||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">תאריך</span><span class="pnl-val">${it.date?mlabel(mkey(it.date)):'—'}</span></div>`;
+    badge=`<span class="pill ${EXP_PILL[it.category]||'p-exp-other'}">${it.category||'אחר'}</span>`;
+    avStyle='background:var(--red2);color:var(--red)';
+    rows=`
+      <div class="pnl-row"><span class="pnl-lbl">סכום (ללא מע"מ)</span><span class="pnl-val red">${it.value?fmt(it.value):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">מע"מ (18%)</span><span class="pnl-val">${it.value?fmt(it.value*VAT):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val red">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">ספק</span><span class="pnl-val">${it.vendor||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">תאריך</span><span class="pnl-val">${it.date?mlabel(mkey(it.date)):'—'}</span></div>
+    `;
   }else{
-    const pc=CFG[tab].pmap[it.status]||'p-new';badge=`<span class="pill ${pc}">${it.status}</span>`;avStyle=`background:${avc(idx)[0]};color:${avc(idx)[1]}`;
+    const pc=CFG[tab].pmap[it.status]||'p-new';
+    badge=`<span class="pill ${pc}">${it.status}</span>`;
+    avStyle=`background:${avc(idx)[0]};color:${avc(idx)[1]}`;
     const priCl=it.priority==='גבוהה'?'ph':it.priority==='בינונית'?'pm':'pl';
-    if(tab==='leads')rows=`<div class="pnl-row"><span class="pnl-lbl">ערך</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">עדיפות</span><span class="pnl-val"><div class="prio-chip"><span class="pd ${priCl}"></span>${it.priority||'—'}</div></span></div><div class="pnl-row"><span class="pnl-lbl">תאריך</span><span class="pnl-val">${it.date||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">בעלים</span><span class="pnl-val">${it.owner||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">טלפון</span><span class="pnl-val">${it.phone||'—'}</span></div>`;
-    else if(tab==='projects')rows=`<div class="pnl-row"><span class="pnl-lbl">תקציב</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">התקדמות</span><span class="pnl-val"><div style="display:flex;align-items:center;gap:8px"><div class="prog-track"><div class="prog-fill" style="width:${it.progress||0}%"></div></div>${it.progress||0}%</div></span></div><div class="pnl-row"><span class="pnl-lbl">דדליין</span><span class="pnl-val">${it.date||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">מנהל</span><span class="pnl-val">${it.owner||'—'}</span></div>`;
-    else rows=`<div class="pnl-row"><span class="pnl-lbl">ערך שנתי</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">איש קשר</span><span class="pnl-val">${it.contact||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">טלפון</span><span class="pnl-val">${it.phone||'—'}</span></div><div class="pnl-row"><span class="pnl-lbl">עיר</span><span class="pnl-val">${it.city||'—'}</span></div>`;
+    if(tab==='leads') rows=`
+      <div class="pnl-row"><span class="pnl-lbl">ערך (לפני מע"מ)</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">כולל מע"מ (18%)</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">חברה</span><span class="pnl-val">${it.company||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">עדיפות</span><span class="pnl-val"><div class="prio-chip"><span class="pd ${priCl}"></span>${it.priority||'—'}</div></span></div>
+      <div class="pnl-row"><span class="pnl-lbl">תאריך</span><span class="pnl-val">${it.date||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">בעלים</span><span class="pnl-val">${it.owner||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">טלפון</span><span class="pnl-val">${it.phone||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">אימייל</span><span class="pnl-val" style="font-size:12px;word-break:break-all">${it.email||'—'}</span></div>
+      ${it.form_answer?`<div class="pnl-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl" style="color:var(--purple);font-weight:700">מה סימן בטופס לידים</span><span style="font-size:13px;color:var(--purple);font-weight:600">${it.form_answer}</span></div>`:''}
+      ${it.q_how_long?`<div class="pnl-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl">כמה זמן עובד בצורה הזאת?</span><span style="font-size:13px;color:var(--text);line-height:1.5">${it.q_how_long}</span></div>`:''}
+      ${it.q_how_worked?`<div class="pnl-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl">איך עבד לו עד עכשיו?</span><span style="font-size:13px;color:var(--text);line-height:1.5">${it.q_how_worked}</span></div>`:''}
+      ${it.q_expectation?`<div class="pnl-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl">ציפייה מפתרונות אחרים?</span><span style="font-size:13px;color:var(--text);line-height:1.5">${it.q_expectation}</span></div>`:''}
+    `;
+    else if(tab==='projects') rows=`
+      <div class="pnl-row"><span class="pnl-lbl">תקציב (לפני מע"מ)</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">לקוח</span><span class="pnl-val">${it.company||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">התקדמות</span><span class="pnl-val"><div style="display:flex;align-items:center;gap:8px"><div class="prog-track"><div class="prog-fill" style="width:${it.progress||0}%"></div></div>${it.progress||0}%</div></span></div>
+      <div class="pnl-row"><span class="pnl-lbl">דדליין</span><span class="pnl-val">${it.date||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">מנהל</span><span class="pnl-val">${it.owner||'—'}</span></div>
+    `;
+    else rows=`
+      <div class="pnl-row"><span class="pnl-lbl">ערך שנתי</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">ענף</span><span class="pnl-val">${it.company||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">סטטוס</span><span class="pnl-val">${it.status||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">איש קשר</span><span class="pnl-val">${it.contact||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">טלפון</span><span class="pnl-val">${it.phone||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">אימייל</span><span class="pnl-val" style="font-size:12px;word-break:break-all">${it.email||'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">עיר</span><span class="pnl-val">${it.city||'—'}</span></div>
+      ${it.retainer_plan?`<div class="pnl-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><span class="pnl-lbl" style="color:var(--blue);font-weight:700">מסלול ריטיינר</span><span class="pnl-val" style="color:var(--blue);font-weight:800">${it.retainer_plan}</span></div>`:''}
+      ${it.retainer_notes?`<div class="pnl-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl">פירוט המסלול</span><span style="font-size:13px;color:var(--text);line-height:1.5">${it.retainer_notes}</span></div>`:''}
+    `;
   }
   const p=document.getElementById('panel');
-  p.innerHTML=`<div class="pnl-hd"><div class="pnl-av-row"><div class="pnl-av" style="${avStyle}">${tab==='expenses'?'<i class="ti ti-receipt" style="font-size:18px"></i>':ini(it.name)}</div><div style="flex:1;min-width:0"><div class="pnl-name">${it.name}</div><div class="pnl-co">${it.company||it.vendor||''}</div>${badge}</div><button class="btn btn-icon" onclick="closePanel()"><i class="ti ti-x" style="font-size:15px"></i></button></div></div>
-  <div class="pnl-scroll"><div class="pnl-sec"><div class="pnl-sec-t">פרטים</div>${rows}</div><div class="pnl-sec"><div class="pnl-sec-t">הערות</div><textarea class="notes-ta" rows="4" placeholder="הוסף הערה..." onchange="saveNote(${it.id},this.value)">${it.notes||''}</textarea></div></div>
-  <div class="pnl-act"><button class="btn ${tab==='expenses'?'btn-red':'btn-blue'}" style="flex:1" onclick="openEdit(${it.id})"><i class="ti ti-pencil"></i> ערוך</button><button class="btn btn-outline" onclick="del(${it.id})" style="padding:7px 12px;color:var(--red)"><i class="ti ti-trash"></i></button></div>`;
+  p.innerHTML=`
+    <div class="pnl-hd"><div class="pnl-av-row">
+      <div class="pnl-av" style="${avStyle}">${tab==='expenses'?'<i class="ti ti-receipt" style="font-size:18px"></i>':ini(it.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="pnl-name">${it.name}</div>
+        <div class="pnl-co">${it.company||it.vendor||''}</div>
+        ${badge}
+      </div>
+      <button class="btn btn-icon" onclick="closePanel()"><i class="ti ti-x" style="font-size:15px"></i></button>
+    </div></div>
+    <div class="pnl-scroll">
+      <div class="pnl-sec"><div class="pnl-sec-t">פרטים</div>${rows}</div>
+      <div class="pnl-sec"><div class="pnl-sec-t">הערות</div>
+        <textarea class="notes-ta" rows="4" placeholder="הוסף הערה..." onchange="saveNote(${it.id},this.value)">${it.notes||''}</textarea>
+      </div>
+    </div>
+    <div class="pnl-act">
+      <button class="btn ${tab==='expenses'?'btn-red':'btn-blue'}" style="flex:1" onclick="openEdit(${it.id})"><i class="ti ti-pencil"></i> ערוך</button>
+      <button class="btn btn-outline" onclick="del(${it.id})" style="padding:7px 12px;color:var(--red)"><i class="ti ti-trash"></i></button>
+    </div>
+  `;
   p.style.display='';
   p.classList.add('open');
   if(!['income','report'].includes(tab))renderMain();
