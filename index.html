@@ -662,7 +662,7 @@ function openPanel(id){
       <div class="pnl-row"><span class="pnl-lbl">בעלים</span><span class="pnl-val">${it.owner||'—'}</span></div>
       <div class="pnl-row"><span class="pnl-lbl">טלפון</span><span class="pnl-val">${it.phone||'—'}</span></div>
       <div class="pnl-row"><span class="pnl-lbl">אימייל</span><span class="pnl-val" style="font-size:12px;word-break:break-all">${it.email||'—'}</span></div>
-      ${it.form_answer?`<div class="pnl-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl" style="color:var(--purple);font-weight:700">מה סימן בטופס לידים</span><span style="font-size:13px;color:var(--purple);font-weight:600">${it.form_answer}</span></div>`:''}
+      ${it.form_answer?`<div class="pnl-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl" style="color:var(--text);font-weight:700">מה סימן בטופס לידים</span><span style="font-size:13px;color:var(--purple);font-weight:600">${it.form_answer}</span></div>`:''}
       ${it.q_how_long?`<div class="pnl-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl">כמה זמן עובד בצורה הזאת?</span><span style="font-size:13px;color:var(--text);line-height:1.5">${it.q_how_long}</span></div>`:''}
       ${it.q_how_worked?`<div class="pnl-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl">איך עבד לו עד עכשיו?</span><span style="font-size:13px;color:var(--text);line-height:1.5">${it.q_how_worked}</span></div>`:''}
       ${it.q_expectation?`<div class="pnl-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="pnl-lbl">ציפייה מפתרונות אחרים?</span><span style="font-size:13px;color:var(--text);line-height:1.5">${it.q_expectation}</span></div>`:''}
@@ -696,6 +696,11 @@ function openPanel(id){
         <div class="pnl-name">${it.name}</div>
         <div class="pnl-co">${it.company||it.vendor||''}</div>
         ${badge}
+        <div style="margin-top:8px">
+          <select onchange="quickStatus(${it.id},this.value)" style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:5px 10px;color:var(--text);font-size:12px;font-weight:600;font-family:'Figtree',sans-serif;cursor:pointer;outline:none;width:100%">
+            ${(CFG[tab]?.statuses||[]).map(s=>`<option value="${s}" ${it.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
       </div>
       <button class="btn btn-icon" onclick="closePanel()"><i class="ti ti-x" style="font-size:15px"></i></button>
     </div></div>
@@ -714,6 +719,24 @@ function openPanel(id){
   p.classList.add('open');
   if(!['income','report'].includes(tab))renderMain();
 }
+
+function quickStatus(id, newStatus) {
+  const src = tab==='expenses' ? D.expenses : (D[tab]||[]);
+  const it = src.find(i=>i.id===id);
+  if (!it) return;
+  it.status = newStatus;
+  sv();
+  // Update in Supabase
+  const tbl = tab==='expenses'?'expenses':tab;
+  getSB().from(tbl).update({status: newStatus}).eq('id', id).then(({error})=>{
+    if (error) { toast('שגיאה בעדכון סטטוס','e'); return; }
+    toast('סטטוס עודכן ✓','s');
+    renderKPI(); renderMain();
+    // Re-open panel to refresh badge
+    openPanel(id);
+  });
+}
+
 function closePanel(){
   sId=null;
   const p=document.getElementById('panel');
