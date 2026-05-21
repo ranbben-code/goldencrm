@@ -822,15 +822,38 @@ async function saveItem() {
   const tbl = tab === 'expenses' ? 'expenses' : tab;
   let item;
   if (tab === 'expenses') {
-    item = { name, vendor: document.getElementById('fvn')?.value||'', category: document.getElementById('fcat')?.value||'אחר', value: v, date: document.getElementById('fd')?.value||'', notes: document.getElementById('fno')?.value||'',
-      form_answer: document.getElementById('fform')?.value||'',
-      q_how_long: document.getElementById('fq1')?.value||'',
-      q_how_worked: document.getElementById('fq2')?.value||'',
-      q_expectation: document.getElementById('fq3')?.value||'' };
+    item = {
+      name,
+      vendor:   document.getElementById('fvn')?.value||'',
+      category: document.getElementById('fcat')?.value||'אחר',
+      value: v,
+      date:  document.getElementById('fd')?.value||'',
+      notes: document.getElementById('fno')?.value||''
+    };
   } else {
-    item = { name, company: document.getElementById('fco')?.value||'', status: document.getElementById('fs')?.value||CFG[tab].statuses[0], value: v, priority: document.getElementById('fp')?.value||'', date: document.getElementById('fd')?.value||'', owner: document.getElementById('fow')?.value||'רן', phone: document.getElementById('fph')?.value||'', email: document.getElementById('fem')?.value||'', contact: document.getElementById('fct')?.value||'', city: document.getElementById('fci')?.value||'', progress: parseInt(document.getElementById('fpr')?.value)||0, notes: document.getElementById('fno')?.value||'',
-      retainer_plan: document.getElementById('fretainer')?.value||'',
-      retainer_notes: document.getElementById('fretainernotes')?.value||'' };
+    item = {
+      name,
+      company:  document.getElementById('fco')?.value||'',
+      status:   document.getElementById('fs')?.value||CFG[tab].statuses[0],
+      value: v,
+      priority: document.getElementById('fp')?.value||'',
+      date:     document.getElementById('fd')?.value||'',
+      owner:    document.getElementById('fow')?.value||'רן',
+      phone:    document.getElementById('fph')?.value||'',
+      email:    document.getElementById('fem')?.value||'',
+      contact:  document.getElementById('fct')?.value||'',
+      city:     document.getElementById('fci')?.value||'',
+      progress: parseInt(document.getElementById('fpr')?.value)||0,
+      notes:    document.getElementById('fno')?.value||'',
+      // leads-specific
+      form_answer:  document.getElementById('fform')?.value||'',
+      q_how_long:   document.getElementById('fq1')?.value||'',
+      q_how_worked: document.getElementById('fq2')?.value||'',
+      q_expectation:document.getElementById('fq3')?.value||'',
+      // clients-specific
+      retainer_plan:  document.getElementById('fretainer')?.value||'',
+      retainer_notes: document.getElementById('fretainernotes')?.value||''
+    };
   }
   try {
     const sb = getSB(); let saved;
