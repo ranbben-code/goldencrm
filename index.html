@@ -309,6 +309,7 @@ tr:hover .td-acts{opacity:1}
     <div class="spacer"></div>
     <div class="search-wrap" id="searchArea"><i class="ti ti-search"></i><input class="search-inp" type="text" placeholder="חיפוש..." id="searchInp" oninput="renderMain()"></div>
     <button class="btn btn-icon" onclick="loadFromCloud()" title="רענן"><i class="ti ti-refresh"></i></button>
+    <button class="btn btn-icon" onclick="exportToCSV()" title="ייצוא ל-Sheets" style="display:var(--export-btn-display,flex)"><i class="ti ti-table-export"></i></button>
     <button class="btn btn-blue" id="addBtn" onclick="openAdd()"><i class="ti ti-plus"></i><span id="addLbl">הוסף ליד</span></button>
   </header>
   <div class="content" id="content">
@@ -410,6 +411,8 @@ function go(t){
   aBtn.style.display=noAdd?'none':'inline-flex';
   aBtn.className='btn '+(t==='expenses'?'btn-red':'btn-blue');
   document.getElementById('searchArea').style.display=['income','report'].includes(t)?'none':'flex';
+  const expBtn = document.querySelector('[onclick="exportToCSV()"]');
+  if (expBtn) expBtn.style.display = ['income','report'].includes(t) ? 'none' : 'flex';
   const p=document.getElementById('panel');p.classList.remove('open');p.innerHTML='';
   renderPage();
 }
@@ -680,6 +683,15 @@ function flds(it={}){
     <div class="frow"><div class="fg"><label class="fl">ערך (₪ לפני מע"מ)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--green)">${vh}</div></div><div class="fg"><label class="fl">תאריך</label><input class="fi" type="date" id="fd" value="${it.date||''}"></div></div>
     <div class="frow"><div class="fg"><label class="fl">בעלים</label><input class="fi" id="fow" value="${it.owner||'רן'}"></div><div class="fg"><label class="fl">טלפון</label><input class="fi" id="fph" value="${it.phone||''}" placeholder="05x-xxxxxxx"></div></div>
     <div class="fg"><label class="fl">אימייל</label><input class="fi" id="fem" value="${it.email||''}" placeholder="name@company.co.il"></div>
+    <div class="fg"><label class="fl">מה סימן בטופס לידים</label><select class="fsl" id="fform">
+      <option value="">לא סומן</option>
+      <option${it.form_answer==='כמעט ולא ניסיתי שוב דבר רציני'?' selected':''}>כמעט ולא ניסיתי שוב דבר רציני</option>
+      <option${it.form_answer==='ניסיתי לבד בלי אסטרטגיה מסודרת'?' selected':''}>ניסיתי לבד בלי אסטרטגיה מסודרת</option>
+      <option${it.form_answer==='עבדתי עם ספקים בעבר - תוצאות חלשות'?' selected':''}>עבדתי עם ספקים בעבר - תוצאות חלשות</option>
+    </select></div>
+    <div class="fg"><label class="fl">כמה זמן אתה עובד בצורה הזאת?</label><textarea class="fta" id="fq1" style="min-height:50px">${it.q_how_long||''}</textarea></div>
+    <div class="fg"><label class="fl">איך עבד לך עד עכשיו?</label><textarea class="fta" id="fq2" style="min-height:50px">${it.q_how_worked||''}</textarea></div>
+    <div class="fg"><label class="fl">מה הציפייה שלך מפתרונות אחרים?</label><textarea class="fta" id="fq3" style="min-height:50px">${it.q_expectation||''}</textarea></div>
     <div class="fg"><label class="fl">הערות</label><textarea class="fta" id="fno">${it.notes||''}</textarea></div>`;
   if(tab==='projects')return`
     <div class="frow"><div class="fg"><label class="fl">שם פרויקט *</label><input class="fi" id="fn" value="${it.name||''}" placeholder="שם פרויקט"></div><div class="fg"><label class="fl">לקוח</label><input class="fi" id="fco" value="${it.company||''}" placeholder="שם לקוח"></div></div>
@@ -741,6 +753,40 @@ function showLoader(on) {
   }
 }
 
+
+function exportToCSV() {
+  const items = D[tab] || [];
+  if (!items.length) { toast('אין נתונים לייצוא', 'e'); return; }
+  const excludeKeys = ['id','created_at'];
+  const keys = Object.keys(items[0]).filter(k => !excludeKeys.includes(k));
+  const hebrewHeaders = {
+    name:'שם', company:'חברה / לקוח', status:'סטטוס', value:'ערך',
+    priority:'עדיפות', date:'תאריך', owner:'בעלים', phone:'טלפון',
+    email:'אימייל', notes:'הערות', contact:'איש קשר', city:'עיר',
+    progress:'התקדמות %', vendor:'ספק', category:'קטגוריה',
+    form_answer:'מה סימן בטופס', q_how_long:'כמה זמן עובד כך',
+    q_how_worked:'איך עבד עד עכשיו', q_expectation:'ציפייה מפתרונות',
+    retainer_plan:'מסלול ריטיינר', retainer_notes:'פירוט מסלול'
+  };
+  const header = keys.map(k => hebrewHeaders[k] || k).join(',');
+  const rows = items.map(item =>
+    keys.map(k => {
+      const v = (item[k] ?? '').toString().replace(/"/g, '""');
+      return v.includes(',') || v.includes('\n') ? `"${v}"` : v;
+    }).join(',')
+  );
+  const bom = '\uFEFF'; // UTF-8 BOM for Excel/Sheets Hebrew support
+  const csv = bom + [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `goldencrm_${tab}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('הקובץ הורד — גרור ל-Google Sheets ✓', 's');
+}
+
 async function loadFromCloud() {
   showLoader(true);
   try {
@@ -776,9 +822,15 @@ async function saveItem() {
   const tbl = tab === 'expenses' ? 'expenses' : tab;
   let item;
   if (tab === 'expenses') {
-    item = { name, vendor: document.getElementById('fvn')?.value||'', category: document.getElementById('fcat')?.value||'אחר', value: v, date: document.getElementById('fd')?.value||'', notes: document.getElementById('fno')?.value||'' };
+    item = { name, vendor: document.getElementById('fvn')?.value||'', category: document.getElementById('fcat')?.value||'אחר', value: v, date: document.getElementById('fd')?.value||'', notes: document.getElementById('fno')?.value||'',
+      form_answer: document.getElementById('fform')?.value||'',
+      q_how_long: document.getElementById('fq1')?.value||'',
+      q_how_worked: document.getElementById('fq2')?.value||'',
+      q_expectation: document.getElementById('fq3')?.value||'' };
   } else {
-    item = { name, company: document.getElementById('fco')?.value||'', status: document.getElementById('fs')?.value||CFG[tab].statuses[0], value: v, priority: document.getElementById('fp')?.value||'', date: document.getElementById('fd')?.value||'', owner: document.getElementById('fow')?.value||'רן', phone: document.getElementById('fph')?.value||'', email: document.getElementById('fem')?.value||'', contact: document.getElementById('fct')?.value||'', city: document.getElementById('fci')?.value||'', progress: parseInt(document.getElementById('fpr')?.value)||0, notes: document.getElementById('fno')?.value||'' };
+    item = { name, company: document.getElementById('fco')?.value||'', status: document.getElementById('fs')?.value||CFG[tab].statuses[0], value: v, priority: document.getElementById('fp')?.value||'', date: document.getElementById('fd')?.value||'', owner: document.getElementById('fow')?.value||'רן', phone: document.getElementById('fph')?.value||'', email: document.getElementById('fem')?.value||'', contact: document.getElementById('fct')?.value||'', city: document.getElementById('fci')?.value||'', progress: parseInt(document.getElementById('fpr')?.value)||0, notes: document.getElementById('fno')?.value||'',
+      retainer_plan: document.getElementById('fretainer')?.value||'',
+      retainer_notes: document.getElementById('fretainernotes')?.value||'' };
   }
   try {
     const sb = getSB(); let saved;
