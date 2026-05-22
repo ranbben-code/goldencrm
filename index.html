@@ -822,7 +822,7 @@ function flds(it={}){
     <div class="frow"><div class="fg"><label class="fl">שם מלא *</label><input class="fi" id="fn" value="${it.name||''}" placeholder="שם מלא"></div><div class="fg"><label class="fl">חברה</label><input class="fi" id="fco" value="${it.company||''}" placeholder="שם החברה"></div></div>
     <div class="frow"><div class="fg"><label class="fl">סטטוס</label><select class="fsl" id="fs">${so}</select></div><div class="fg"><label class="fl">עדיפות</label><select class="fsl" id="fp"><option${it.priority==='גבוהה'?' selected':''}>גבוהה</option><option${!it.priority||it.priority==='בינונית'?' selected':''}>בינונית</option><option${it.priority==='נמוכה'?' selected':''}>נמוכה</option></select></div></div>
     <div class="frow"><div class="fg"><label class="fl">ערך (₪ לפני מע"מ)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--green)">${vh}</div></div><div class="fg"><label class="fl">תאריך</label><input class="fi" type="date" id="fd" value="${it.date||''}"></div></div>
-    <div class="frow"><div class="fg"><label class="fl">מקדמה שהתקבלה (₪)</label><input class="fi" type="number" id="fdeposit" value="${it.deposit||''}" placeholder="0" oninput="calcBalance()"></div><div class="fg"><label class="fl">יתרה לתשלום (₪)</label><input class="fi" type="number" id="fbalance" value="${it.balance||''}" placeholder="0" readonly style="background:var(--bg2);color:var(--text2)"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">מקדמה שהתקבלה (₪)</label><input class="fi" type="number" id="fdeposit" value="${it.deposit||''}" placeholder="0" oninput="calcBalance()" onchange="calcBalance()"></div><div class="fg"><label class="fl">יתרה לתשלום (₪)</label><input class="fi" type="number" id="fbalance" value="${it.balance||''}" placeholder="0" style="background:var(--bg);color:var(--text)"></div></div>
     <div class="frow"><div class="fg"><label class="fl">בעלים</label><input class="fi" id="fow" value="${it.owner||'רן'}"></div><div class="fg"><label class="fl">טלפון</label><input class="fi" id="fph" value="${it.phone||''}" placeholder="05x-xxxxxxx"></div></div>
     <div class="fg"><label class="fl">אימייל</label><input class="fi" id="fem" value="${it.email||''}" placeholder="name@company.co.il"></div>
     <div class="fg"><label class="fl">מה סימן בטופס לידים</label><select class="fsl" id="fform">
@@ -848,7 +848,18 @@ function flds(it={}){
     <div class="frow"><div class="fg"><label class="fl">אימייל</label><input class="fi" id="fem" value="${it.email||''}" placeholder="name@company.co.il"></div><div class="fg"><label class="fl">עיר</label><input class="fi" id="fci" value="${it.city||''}" placeholder="עיר"></div></div>
     <div class="fg"><label class="fl">הערות</label><textarea class="fta" id="fno">${it.notes||''}</textarea></div>`;
 }
-function calcV(){const v=parseFloat(document.getElementById('fv')?.value)||0;const h=document.getElementById('vatH');if(h)h.textContent=v>0?`כולל מע"מ: ${fmt(v*(1+VAT))}`:''}
+function calcV(){
+  const v=parseFloat(document.getElementById('fv')?.value)||0;
+  const h=document.getElementById('vatH');
+  if(h)h.textContent=v>0?`כולל מע"מ: ${fmt(v*(1+VAT))}`:'';
+  calcBalance();
+}
+function calcBalance(){
+  const v=parseFloat(document.getElementById('fv')?.value)||0;
+  const d=parseFloat(document.getElementById('fdeposit')?.value)||0;
+  const b=document.getElementById('fbalance');
+  if(b) b.value=v>0&&d>=0 ? Math.max(0,v-d) : '';
+}
 function openAdd(ds){
   eId=null;const icons={leads:'ti-users',projects:'ti-briefcase',clients:'ti-building',expenses:'ti-receipt'};
   const color=tab==='expenses'?'var(--red)':'var(--blue)';
@@ -864,6 +875,7 @@ function openEdit(id){
   document.getElementById('mTitle').innerHTML=`<i class="ti ti-pencil" style="color:${color}"></i> עריכה`;
   document.getElementById('saveBtn').className='btn '+(tab==='expenses'?'btn-red':'btn-blue');
   document.getElementById('mBody').innerHTML=flds(it);document.getElementById('modal').classList.add('open');
+  setTimeout(calcBalance, 50);
 }
 function closeModal(){document.getElementById('modal').classList.remove('open');eId=null;}
 function toast(msg,type='s'){
