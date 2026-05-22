@@ -449,7 +449,7 @@ function renderKPI(){
     h=`<div class="kpi"><div class="kpi-top"><div><div class="kpi-label">לקוחות</div><div class="kpi-val">${items.length}</div></div><div class="kpi-icon purple"><i class="ti ti-building"></i></div></div></div>
        <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">פעילים</div><div class="kpi-val">${act.length}</div></div><div class="kpi-icon green"><i class="ti ti-user-check"></i></div></div></div>
        <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">VIP</div><div class="kpi-val">${vip.length}</div></div><div class="kpi-icon orange"><i class="ti ti-crown"></i></div></div></div>
-       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">ערך שנתי</div><div class="kpi-val" style="font-size:20px">${fmt(total)}</div></div><div class="kpi-icon blue"><i class="ti ti-currency-shekel"></i></div></div></div>`;
+       <div class="kpi"><div class="kpi-top"><div><div class="kpi-label">ערך עסקה</div><div class="kpi-val" style="font-size:20px">${fmt(total)}</div></div><div class="kpi-icon blue"><i class="ti ti-currency-shekel"></i></div></div></div>`;
   }
   document.getElementById('kpiArea').innerHTML=`<div class="kpi-wrap">${h}</div>`;
   document.getElementById('hdrBadge').textContent=items.length;
@@ -614,7 +614,7 @@ function renderMain(){
 }
 function mkTable(items){
   if(!items.length)return`<div style="background:var(--white);border-top:1px solid var(--border)"><div class="empty"><i class="ti ti-table-off"></i><p>לא נמצאו רשומות</p></div></div>`;
-  const h4=tab==='projects'?'התקדמות':tab==='clients'?'ערך שנתי':'ערך';
+  const h4=tab==='projects'?'התקדמות':tab==='clients'?'ערך עסקה':'ערך';
   const h5=tab==='clients'?'איש קשר':tab==='projects'?'דדליין':'תאריך';
   const h6=tab==='clients'?'עיר':'בעלים';
   const rows=items.map((it,i)=>{
@@ -678,7 +678,7 @@ function openPanel(id){
       <div class="pnl-row"><span class="pnl-lbl">מנהל</span><span class="pnl-val">${it.owner||'—'}</span></div>
     `;
     else rows=`
-      <div class="pnl-row"><span class="pnl-lbl">ערך שנתי</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div>
+      <div class="pnl-row"><span class="pnl-lbl">ערך עסקה</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div>
       <div class="pnl-row"><span class="pnl-lbl">כולל מע"מ</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div>
       <div class="pnl-row"><span class="pnl-lbl">ענף</span><span class="pnl-val">${it.company||'—'}</span></div>
       <div class="pnl-row"><span class="pnl-lbl">סטטוס</span><span class="pnl-val">${it.status||'—'}</span></div>
@@ -843,7 +843,7 @@ function flds(it={}){
     <div class="fg"><label class="fl">הערות</label><textarea class="fta" id="fno">${it.notes||''}</textarea></div>`;
   return`
     <div class="frow"><div class="fg"><label class="fl">שם לקוח *</label><input class="fi" id="fn" value="${it.name||''}" placeholder="שם לקוח"></div><div class="fg"><label class="fl">ענף</label><input class="fi" id="fco" value="${it.company||''}" placeholder="ענף עסקי"></div></div>
-    <div class="frow"><div class="fg"><label class="fl">סטטוס</label><select class="fsl" id="fs">${so}</select></div><div class="fg"><label class="fl">ערך שנתי (₪)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--green)">${vh}</div></div></div>
+    <div class="frow"><div class="fg"><label class="fl">סטטוס</label><select class="fsl" id="fs">${so}</select></div><div class="fg"><label class="fl">ערך עסקה (₪)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--green)">${vh}</div></div></div>
     <div class="frow"><div class="fg"><label class="fl">איש קשר</label><input class="fi" id="fct" value="${it.contact||''}" placeholder="שם"></div><div class="fg"><label class="fl">טלפון</label><input class="fi" id="fph" value="${it.phone||''}" placeholder="05x-xxxxxxx"></div></div>
     <div class="frow"><div class="fg"><label class="fl">אימייל</label><input class="fi" id="fem" value="${it.email||''}" placeholder="name@company.co.il"></div><div class="fg"><label class="fl">עיר</label><input class="fi" id="fci" value="${it.city||''}" placeholder="עיר"></div></div>
     <div class="fg"><label class="fl">הערות</label><textarea class="fta" id="fno">${it.notes||''}</textarea></div>`;
