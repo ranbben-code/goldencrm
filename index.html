@@ -657,7 +657,7 @@ function openPanel(id){
       <div class="pnl-row"><span class="pnl-lbl">ערך (לפני מע"מ)</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div>
       <div class="pnl-row"><span class="pnl-lbl">כולל מע"מ (18%)</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div>
       ${it.deposit?`<div class="pnl-row" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)"><span class="pnl-lbl">מקדמה שהתקבלה</span><span class="pnl-val" style="color:var(--green);font-weight:700">${fmt(it.deposit)}</span></div>`:''}
-      ${it.deposit?`<div class="pnl-row"><span class="pnl-lbl">יתרה לתשלום</span><span class="pnl-val" style="color:${(it.balance||0)>0?'var(--orange)':'var(--green)'};font-weight:700">${fmt(it.balance||0)}</span></div>`:''}
+      ${it.deposit!=null&&it.deposit!==''?`<div class="pnl-row"><span class="pnl-lbl">יתרה לתשלום (כולל מע"מ)</span><span class="pnl-val" style="color:${Math.round((it.value||0)*(1+VAT))-(it.deposit||0)>0?'var(--orange)':'var(--green)'};font-weight:700">${fmt(Math.max(0,Math.round((it.value||0)*(1+VAT))-(it.deposit||0)))}</span></div>`:''}
       <div class="pnl-row"><span class="pnl-lbl">חברה</span><span class="pnl-val">${it.company||'—'}</span></div>
       <div class="pnl-row"><span class="pnl-lbl">עדיפות</span><span class="pnl-val"><div class="prio-chip"><span class="pd ${priCl}"></span>${it.priority||'—'}</div></span></div>
       <div class="pnl-row"><span class="pnl-lbl">תאריך</span><span class="pnl-val">${it.date||'—'}</span></div>
@@ -861,7 +861,8 @@ function calcBalance(){
   if(!fb) return;
   const v=parseFloat(fv?.value)||0;
   const d=parseFloat(fd?.value)||0;
-  if(v>0 || d>0) fb.value=Math.max(0,v-d);
+  const vWithVat=Math.round(v*(1+VAT));
+  if(v>0 || d>0) fb.value=Math.max(0,vWithVat-d);
 }
 function openAdd(ds){
   eId=null;const icons={leads:'ti-users',projects:'ti-briefcase',clients:'ti-building',expenses:'ti-receipt'};
