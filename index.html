@@ -656,6 +656,8 @@ function openPanel(id){
     if(tab==='leads') rows=`
       <div class="pnl-row"><span class="pnl-lbl">ערך (לפני מע"מ)</span><span class="pnl-val blue">${it.value?fmt(it.value):'—'}</span></div>
       <div class="pnl-row"><span class="pnl-lbl">כולל מע"מ (18%)</span><span class="pnl-val green">${it.value?fmt(it.value*(1+VAT)):'—'}</span></div>
+      ${it.deposit?`<div class="pnl-row" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)"><span class="pnl-lbl">מקדמה שהתקבלה</span><span class="pnl-val" style="color:var(--green);font-weight:700">${fmt(it.deposit)}</span></div>`:''}
+      ${it.deposit?`<div class="pnl-row"><span class="pnl-lbl">יתרה לתשלום</span><span class="pnl-val" style="color:${(it.balance||0)>0?'var(--orange)':'var(--green)'};font-weight:700">${fmt(it.balance||0)}</span></div>`:''}
       <div class="pnl-row"><span class="pnl-lbl">חברה</span><span class="pnl-val">${it.company||'—'}</span></div>
       <div class="pnl-row"><span class="pnl-lbl">עדיפות</span><span class="pnl-val"><div class="prio-chip"><span class="pd ${priCl}"></span>${it.priority||'—'}</div></span></div>
       <div class="pnl-row"><span class="pnl-lbl">תאריך</span><span class="pnl-val">${it.date||'—'}</span></div>
@@ -820,6 +822,7 @@ function flds(it={}){
     <div class="frow"><div class="fg"><label class="fl">שם מלא *</label><input class="fi" id="fn" value="${it.name||''}" placeholder="שם מלא"></div><div class="fg"><label class="fl">חברה</label><input class="fi" id="fco" value="${it.company||''}" placeholder="שם החברה"></div></div>
     <div class="frow"><div class="fg"><label class="fl">סטטוס</label><select class="fsl" id="fs">${so}</select></div><div class="fg"><label class="fl">עדיפות</label><select class="fsl" id="fp"><option${it.priority==='גבוהה'?' selected':''}>גבוהה</option><option${!it.priority||it.priority==='בינונית'?' selected':''}>בינונית</option><option${it.priority==='נמוכה'?' selected':''}>נמוכה</option></select></div></div>
     <div class="frow"><div class="fg"><label class="fl">ערך (₪ לפני מע"מ)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--green)">${vh}</div></div><div class="fg"><label class="fl">תאריך</label><input class="fi" type="date" id="fd" value="${it.date||''}"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">מקדמה שהתקבלה (₪)</label><input class="fi" type="number" id="fdeposit" value="${it.deposit||''}" placeholder="0" oninput="calcBalance()"></div><div class="fg"><label class="fl">יתרה לתשלום (₪)</label><input class="fi" type="number" id="fbalance" value="${it.balance||''}" placeholder="0" readonly style="background:var(--bg2);color:var(--text2)"></div></div>
     <div class="frow"><div class="fg"><label class="fl">בעלים</label><input class="fi" id="fow" value="${it.owner||'רן'}"></div><div class="fg"><label class="fl">טלפון</label><input class="fi" id="fph" value="${it.phone||''}" placeholder="05x-xxxxxxx"></div></div>
     <div class="fg"><label class="fl">אימייל</label><input class="fi" id="fem" value="${it.email||''}" placeholder="name@company.co.il"></div>
     <div class="fg"><label class="fl">מה סימן בטופס לידים</label><select class="fsl" id="fform">
@@ -989,6 +992,8 @@ async function saveItem() {
       q_how_long:   document.getElementById('fq1')?.value||'',
       q_how_worked: document.getElementById('fq2')?.value||'',
       q_expectation:document.getElementById('fq3')?.value||'',
+      deposit: parseFloat(document.getElementById('fdeposit')?.value)||0,
+      balance: parseFloat(document.getElementById('fbalance')?.value)||0,
       // clients-specific
       retainer_plan:  document.getElementById('fretainer')?.value||'',
       retainer_notes: document.getElementById('fretainernotes')?.value||''
