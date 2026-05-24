@@ -981,6 +981,8 @@ async function convertToClient(id) {
   try {
     const sb = getSB();
     // Create client
+    const deposit = lead.deposit||0;
+    const balance = deposit>0 ? Math.max(0,Math.round((lead.value||0)*1.18)-deposit) : 0;
     const clientItem = {
       name: lead.name,
       company: lead.company||'',
@@ -991,8 +993,9 @@ async function convertToClient(id) {
       email: lead.email||'',
       city: lead.city||'',
       notes: lead.notes||'',
-      deposit: lead.deposit||0,
-      balance: lead.deposit>0 ? Math.max(0,Math.round((lead.value||0)*1.18)-(lead.deposit||0)) : 0
+      deposit: deposit,
+      balance: balance,
+      closed_date: lead.date||''
     };
     const {data:cData, error:cErr} = await sb.from('clients').insert(clientItem).select();
     if (cErr) throw cErr;
@@ -1077,6 +1080,9 @@ function flds(it={}){
   return`
     <div class="frow"><div class="fg"><label class="fl">שם לקוח *</label><input class="fi" id="fn" value="${it.name||''}" placeholder="שם לקוח"></div><div class="fg"><label class="fl">ענף</label><input class="fi" id="fco" value="${it.company||''}" placeholder="ענף עסקי"></div></div>
     <div class="frow"><div class="fg"><label class="fl">סטטוס</label><select class="fsl" id="fs">${so}</select></div><div class="fg"><label class="fl">ערך עסקה (₪)</label><input class="fi" type="number" id="fv" value="${it.value||''}" placeholder="0" oninput="calcV()"><div class="vat-hint" id="vatH" style="color:var(--green)">${vh}</div></div></div>
+    <div class="frow"><div class="fg"><label class="fl">מקדמה שהתקבלה (₪)</label><input class="fi" type="number" id="fdeposit" value="${it.deposit||''}" placeholder="0" oninput="calcBalance()" onchange="calcBalance()"></div><div class="fg"><label class="fl">יתרה לתשלום (₪)</label><input class="fi" type="number" id="fbalance" value="${it.deposit>0?Math.max(0,Math.round((it.value||0)*1.18)-(it.deposit||0)):''}" placeholder="חישוב אוטומטי"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">תאריך סגירת עסקה</label><input class="fi" type="date" id="fclosed" value="${it.closed_date||''}"></div><div class="fg"><label class="fl">מסלול ריטיינר</label><select class="fsl" id="fretainer"><option value="">ללא מסלול</option><option${it.retainer_plan==='חודשי'?' selected':''}>חודשי</option><option${it.retainer_plan==='רבעוני'?' selected':''}>רבעוני</option><option${it.retainer_plan==='שנתי'?' selected':''}>שנתי</option></select></div></div>
+    <div class="fg"><label class="fl">פירוט המסלול / מה לקח</label><textarea class="fta" id="fretainernotes" style="min-height:60px">${it.retainer_notes||''}</textarea></div>
     <div class="frow"><div class="fg"><label class="fl">איש קשר</label><input class="fi" id="fct" value="${it.contact||''}" placeholder="שם"></div><div class="fg"><label class="fl">טלפון</label><input class="fi" id="fph" value="${it.phone||''}" placeholder="05x-xxxxxxx"></div></div>
     <div class="frow"><div class="fg"><label class="fl">אימייל</label><input class="fi" id="fem" value="${it.email||''}" placeholder="name@company.co.il"></div><div class="fg"><label class="fl">עיר</label><input class="fi" id="fci" value="${it.city||''}" placeholder="עיר"></div></div>
     <div class="fg"><label class="fl">הערות</label><textarea class="fta" id="fno">${it.notes||''}</textarea></div>`;
@@ -1390,10 +1396,10 @@ async function renderDashboard(){
         <div class="dash-big" style="color:var(--orange)">${fmt(pendingBalance)}</div>
         <div class="dash-sub">${leads.filter(i=>i.deposit>0&&Math.round((i.value||0)*1.18)-(i.deposit||0)>0).length} לקוחות עם יתרה פתוחה</div>
       </div>
-      <div class="dash-card">
-        <div class="dash-card-title" style="color:${profit>=0?'var(--green)':'var(--red)'}"><i class="ti ti-scale"></i>רווח גולמי</div>
-        <div class="dash-big" style="color:${profit>=0?'var(--green)':'var(--red)'}">${profit>=0?'+':''}${fmt(profit)}</div>
-        <div class="dash-sub">הוצאות החודש: ${fmt(monthExp)}</div>
+      <div class="dash-card" style="cursor:pointer" onclick="showProfitDetails()">
+        <div class="dash-card-title" style="color:${profit>=0?'var(--green)':'var(--red)'}"><i class="ti ti-scale"></i>רווח גולמי — ${HEM[today.getMonth()]} ${today.getFullYear()} <i class="ti ti-chevron-left" style="font-size:11px;margin-right:auto"></i></div>
+        <div class="dash-big" style="color:${profit>=0?'var(--green)':'var(--red)'}">${profit>=0?'+':''}${fmt(monthIncome-monthExp)}</div>
+        <div class="dash-sub">הכנסות: ${fmt(monthIncome)} · הוצאות: ${fmt(monthExp)}</div>
       </div>
     </div>
 
@@ -1517,6 +1523,101 @@ function closeBalanceModal(){
   if(m) m.style.display = 'none';
 }
 
+
+function showProfitDetails(){
+  const today = new Date();
+  // Build months list from all data
+  const allMonths = new Set();
+  [...(D.leads||[]),...(D.projects||[])].filter(i=>i.status==='נסגר - הכנסה'||i.status==='הושלם').forEach(i=>{ if(i.date) allMonths.add(i.date.slice(0,7)); });
+  (D.expenses||[]).forEach(i=>{ if(i.date) allMonths.add(i.date.slice(0,7)); });
+  const months = [...allMonths].sort().reverse();
+  const thisMonth = today.toISOString().slice(0,7);
+
+  function calcForMonth(m){
+    const won = [...(D.leads||[]).filter(i=>i.status==='נסגר - הכנסה'&&i.date&&i.date.startsWith(m)),
+                 ...(D.projects||[]).filter(i=>i.status==='הושלם'&&i.date&&i.date.startsWith(m))];
+    const inc = won.reduce((a,i)=>a+(i.value||0),0);
+    const exp = (D.expenses||[]).filter(i=>i.date&&i.date.startsWith(m)).reduce((a,i)=>a+(i.value||0),0);
+    return {inc, exp, profit:inc-exp, deals:won.length};
+  }
+
+  const monthOptions = months.map(m=>{
+    const [y,mo] = m.split('-');
+    return `<option value="${m}" ${m===thisMonth?'selected':''}>${HEM[parseInt(mo)-1]} ${y}</option>`;
+  }).join('');
+
+  let overlay = document.getElementById('profitModal');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'profitModal';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(40,50,90,.45);backdrop-filter:blur(3px);z-index:1000;display:flex;align-items:center;justify-content:center';
+    overlay.onclick = e=>{ if(e.target===overlay) overlay.style.display='none'; };
+    document.body.appendChild(overlay);
+  }
+
+  function renderProfit(m){
+    const d = calcForMonth(m);
+    const [y,mo] = m.split('-');
+    const label = HEM[parseInt(mo)-1]+' '+y;
+    const pos = d.profit>=0;
+    document.getElementById('profitContent').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
+        <div style="background:var(--green2);border-radius:var(--r2);padding:14px;border:1px solid rgba(0,200,117,.2)">
+          <div style="font-size:11px;font-weight:700;color:#007848;text-transform:uppercase;margin-bottom:6px">הכנסות</div>
+          <div style="font-size:20px;font-weight:800;color:var(--green)">${fmt(d.inc)}</div>
+          <div style="font-size:11px;color:#007848;margin-top:4px">${d.deals} עסקאות</div>
+        </div>
+        <div style="background:var(--red2);border-radius:var(--r2);padding:14px;border:1px solid rgba(226,68,92,.15)">
+          <div style="font-size:11px;font-weight:700;color:#aa1e35;text-transform:uppercase;margin-bottom:6px">הוצאות</div>
+          <div style="font-size:20px;font-weight:800;color:var(--red)">${fmt(d.exp)}</div>
+        </div>
+        <div style="background:${pos?'var(--green2)':'var(--red2)'};border-radius:var(--r2);padding:14px;border:1px solid ${pos?'rgba(0,200,117,.3)':'rgba(226,68,92,.25)'}">
+          <div style="font-size:11px;font-weight:700;color:${pos?'#007848':'#aa1e35'};text-transform:uppercase;margin-bottom:6px">רווח גולמי</div>
+          <div style="font-size:20px;font-weight:800;color:${pos?'var(--green)':'var(--red)'}">${d.profit>=0?'+':''}${fmt(d.profit)}</div>
+          <div style="font-size:11px;color:${pos?'#007848':'#aa1e35'};margin-top:4px">${d.inc?Math.round(d.profit/d.inc*100):0}% מרווח</div>
+        </div>
+      </div>`;
+  }
+
+  overlay.innerHTML = `
+    <div style="background:var(--white);border-radius:var(--r2);width:520px;max-width:95vw;box-shadow:var(--shadow-lg);overflow:hidden">
+      <div style="padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:17px;font-weight:800;color:var(--text)">רווח והפסד לפי חודש</div>
+        <button onclick="document.getElementById('profitModal').style.display='none'" style="background:transparent;border:1.5px solid var(--border);border-radius:var(--r2);padding:6px;cursor:pointer;color:var(--text3)"><i class="ti ti-x" style="font-size:16px"></i></button>
+      </div>
+      <div style="padding:16px 22px">
+        <select id="profitMonthSel" style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:8px 14px;font-size:14px;font-family:'Figtree',sans-serif;color:var(--text);outline:none;width:100%" onchange="renderProfitForMonth(this.value)">
+          ${monthOptions}
+          <option value="all">כל הזמנים</option>
+        </select>
+        <div id="profitContent"></div>
+      </div>
+    </div>`;
+  overlay.style.display = 'flex';
+
+  // Make renderProfitForMonth global
+  window.renderProfitForMonth = function(m){
+    if(m==='all'){
+      const all = {
+        inc:[...(D.leads||[]).filter(i=>i.status==='נסגר - הכנסה'),...(D.projects||[]).filter(i=>i.status==='הושלם')].reduce((a,i)=>a+(i.value||0),0),
+        exp:(D.expenses||[]).reduce((a,i)=>a+(i.value||0),0)
+      };
+      all.profit=all.inc-all.exp; all.deals=(D.leads||[]).filter(i=>i.status==='נסגר - הכנסה').length;
+      const pos=all.profit>=0;
+      document.getElementById('profitContent').innerHTML=`
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
+          <div style="background:var(--green2);border-radius:var(--r2);padding:14px"><div style="font-size:11px;font-weight:700;color:#007848;text-transform:uppercase;margin-bottom:6px">הכנסות</div><div style="font-size:20px;font-weight:800;color:var(--green)">${fmt(all.inc)}</div><div style="font-size:11px;color:#007848;margin-top:4px">${all.deals} עסקאות</div></div>
+          <div style="background:var(--red2);border-radius:var(--r2);padding:14px"><div style="font-size:11px;font-weight:700;color:#aa1e35;text-transform:uppercase;margin-bottom:6px">הוצאות</div><div style="font-size:20px;font-weight:800;color:var(--red)">${fmt(all.exp)}</div></div>
+          <div style="background:${pos?'var(--green2)':'var(--red2)'};border-radius:var(--r2);padding:14px"><div style="font-size:11px;font-weight:700;color:${pos?'#007848':'#aa1e35'};text-transform:uppercase;margin-bottom:6px">רווח גולמי</div><div style="font-size:20px;font-weight:800;color:${pos?'var(--green)':'var(--red)'}">${all.profit>=0?'+':''}${fmt(all.profit)}</div><div style="font-size:11px;color:${pos?'#007848':'#aa1e35'};margin-top:4px">${all.inc?Math.round(all.profit/all.inc*100):0}% מרווח</div></div>
+        </div>`;
+    } else {
+      renderProfit(m);
+    }
+  };
+
+  renderProfit(months[0]||thisMonth);
+}
+
 async function loadFromCloud() {
   showLoader(true);
   try {
@@ -1583,7 +1684,10 @@ async function saveItem() {
       deposit: parseFloat(document.getElementById('fdeposit')?.value)||0,
       // clients-specific
       retainer_plan:  document.getElementById('fretainer')?.value||'',
-      retainer_notes: document.getElementById('fretainernotes')?.value||''
+      retainer_notes: document.getElementById('fretainernotes')?.value||'',
+      closed_date:    document.getElementById('fclosed')?.value||'',
+      deposit: parseFloat(document.getElementById('fdeposit')?.value)||0,
+      balance: parseFloat(document.getElementById('fbalance')?.value)||0
     };
   }
   try {
