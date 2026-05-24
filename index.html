@@ -1367,7 +1367,7 @@ async function renderDashboard(){
 
   const openLeads=leads.filter(i=>!['נסגר - הפסד','נסגר - הכנסה'].includes(i.status));
   const activeClients=clients.filter(i=>['פעיל','VIP'].includes(i.status));
-  const pendingBalance=leads.filter(i=>i.deposit>0).reduce((a,i)=>a+Math.max(0,Math.round((i.value||0)*1.18)-(i.deposit||0)),0);
+  const pendingBalance=(D.clients||[]).filter(i=>i.deposit>0&&i.value>0).reduce((a,i)=>a+Math.max(0,Math.round((i.value||0)*1.18)-(i.deposit||0)),0);
 
   const todayStr=today.toISOString().slice(0,10);
   const overdueTasks=tasks.filter(t=>t.due_date&&t.due_date<todayStr);
@@ -1394,7 +1394,7 @@ async function renderDashboard(){
       <div class="dash-card" style="cursor:pointer" onclick="showBalanceDetails()">
         <div class="dash-card-title" style="color:var(--orange)"><i class="ti ti-clock"></i>יתרות לגבייה <i class="ti ti-chevron-left" style="font-size:11px;margin-right:auto"></i></div>
         <div class="dash-big" style="color:var(--orange)">${fmt(pendingBalance)}</div>
-        <div class="dash-sub">${leads.filter(i=>i.deposit>0&&Math.round((i.value||0)*1.18)-(i.deposit||0)>0).length} לקוחות עם יתרה פתוחה</div>
+        <div class="dash-sub">${(D.clients||[]).filter(i=>i.deposit>0&&i.value>0&&Math.round((i.value||0)*1.18)-(i.deposit||0)>0).length} לקוחות עם יתרה פתוחה</div>
       </div>
       <div class="dash-card" style="cursor:pointer" onclick="showProfitDetails()">
         <div class="dash-card-title" style="color:${profit>=0?'var(--green)':'var(--red)'}"><i class="ti ti-scale"></i>רווח גולמי — ${HEM[today.getMonth()]} ${today.getFullYear()} <i class="ti ti-chevron-left" style="font-size:11px;margin-right:auto"></i></div>
@@ -1463,16 +1463,11 @@ async function renderDashboard(){
 function showBalanceDetails(){
   // Collect all leads+clients with open balance
   const items = [];
-  (D.leads||[]).forEach(it=>{
-    if(it.deposit>0){
-      const bal = Math.max(0,Math.round((it.value||0)*1.18)-(it.deposit||0));
-      if(bal>0) items.push({name:it.name, company:it.company||'', deposit:it.deposit, balance:bal, type:'ליד', id:it.id});
-    }
-  });
+  // Only show clients (not leads) to avoid duplicates after conversion
   (D.clients||[]).forEach(it=>{
-    if(it.deposit>0){
+    if(it.deposit!=null && it.deposit!=='' && it.value>0){
       const bal = Math.max(0,Math.round((it.value||0)*1.18)-(it.deposit||0));
-      if(bal>0) items.push({name:it.name, company:it.company||'', deposit:it.deposit, balance:bal, type:'לקוח', id:it.id});
+      if(bal>0) items.push({name:it.name, company:it.company||'', deposit:it.deposit||0, balance:bal, type:'לקוח', id:it.id});
     }
   });
 
