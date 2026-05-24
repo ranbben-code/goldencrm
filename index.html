@@ -838,6 +838,7 @@ async function loadPanelExtras(id, tKey){
   if(_panelLoading) return;
   _panelLoading = true;
   const p = document.getElementById('panel');
+  const expectedId = id; // Store to check later
   try {
     let notes=[], tasks=[], tags=[], activity=[];
     [notes, tasks, tags, activity] = await Promise.all([
@@ -846,15 +847,18 @@ async function loadPanelExtras(id, tKey){
       loadTags(id, tKey),
       loadActivity(id, tKey),
     ]);
-    if(!p.classList.contains('open')){_panelLoading=false;return;}
+    // Check panel is still open AND still showing same record
+    if(!p.classList.contains('open') || sId !== expectedId){
+      _panelLoading=false; return;
+    }
     const scroll = p.querySelector('.pnl-scroll');
-    if(!scroll){_panelLoading=false;return;}
-    // Remove old static notes section if present
-    scroll.querySelectorAll('.pnl-sec').forEach(s=>{
-      if(s.querySelector('.notes-ta')) s.remove();
-    });
-    // Remove any previously added extras
+    if(!scroll){ _panelLoading=false; return; }
+
+    // Remove extras and old static notes
     scroll.querySelectorAll('.panel-extra').forEach(s=>s.remove());
+    scroll.querySelectorAll('.pnl-sec').forEach(s=>{
+      if(s.querySelector('.notes-ta:not(#noteInput)')) s.remove();
+    });
 
     const today = new Date().toISOString().slice(0,10);
 
@@ -900,13 +904,13 @@ async function loadPanelExtras(id, tKey){
     taskAdd.innerHTML =
       '<input class="task-inp" id="taskInp" placeholder="משימה חדשה...">'+
       '<input class="task-date-inp" type="date" id="taskDate">'+
-      '<button class="note-add-btn" onclick="addTask('+id+',\"'+tKey+'\")"><i class="ti ti-plus"></i></button>';
+      '<button class="note-add-btn" onclick="addTask('+id+',"'+tKey+'")"><i class="ti ti-plus"></i></button>';
     taskAdd.querySelector('#taskInp').onkeydown = e=>{if(e.key==='Enter')addTask(id,tKey);};
     tasksDiv.appendChild(tasksList);
     tasksDiv.appendChild(taskAdd);
     scroll.appendChild(tasksDiv);
 
-    // NOTES
+    // NOTES — always show all notes with timestamp
     const notesDiv = document.createElement('div');
     notesDiv.className = 'pnl-sec panel-extra';
     notesDiv.innerHTML = '<div class="pnl-sec-t">הערות ולוג (' + notes.length + ')</div>';
@@ -918,7 +922,7 @@ async function loadPanelExtras(id, tKey){
         entry.className = 'note-entry';
         entry.innerHTML =
           '<div class="note-meta"><i class="ti ti-clock"></i>'+formatNoteDate(n.created_at)+
-          '<button onclick="deleteNote('+n.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0"><i class="ti ti-trash"></i></button></div>'+
+          '<button onclick="deleteNote('+n.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0" title="מחק הערה"><i class="ti ti-trash"></i></button></div>'+
           '<div class="note-text">'+n.content.replace(/\n/g,'<br>')+'</div>';
         notesList.appendChild(entry);
       });
