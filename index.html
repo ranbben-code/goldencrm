@@ -848,7 +848,7 @@ async function loadPanelExtras(id, tKey){
       loadActivity(id, tKey),
     ]);
     // Check panel is still open AND still showing same record
-    if(!p.classList.contains('open') || sId !== expectedId){
+    if(!p.classList.contains('open') || String(sId) !== String(expectedId)){
       _panelLoading=false; return;
     }
     const scroll = p.querySelector('.pnl-scroll');
@@ -1255,17 +1255,49 @@ async function addNote(recordId, recordType){
   const {data,error}=await getSB().from('notes').insert({record_id:recordId,record_type:recordType,content}).select();
   if(error){toast('שגיאה בשמירת הערה','e');if(btn)btn.disabled=false;return;}
   ta.value='';
-  // Log activity
-  await logActivity(recordId, recordType, `הערה נוספה`);
-  // Refresh only the extras section, not full panel
-  _panelLoading=false; loadPanelExtras(recordId, recordType);
+  if(btn)btn.disabled=false;
+  // Add note directly to DOM without reloading
+  const notesList = document.querySelector('.notes-log');
+  if(notesList && data && data[0]){
+    const n = data[0];
+    const entry = document.createElement('div');
+    entry.className = 'note-entry';
+    entry.innerHTML =
+      '<div class="note-meta"><i class="ti ti-clock"></i>'+formatNoteDate(n.created_at)+
+      '<button onclick="deleteNote('+n.id+','+recordId+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0"><i class="ti ti-trash"></i></button></div>'+
+      '<div class="note-text">'+n.content.replace(/\n/g,'<br>')+'</div>';
+    // Prepend (newest first)
+    notesList.insertBefore(entry, notesList.firstChild);
+    // Remove "no notes" placeholder if exists
+    const placeholder = notesList.querySelector('div[style]');
+    if(placeholder && placeholder.textContent.includes('אין הערות')) placeholder.remove();
+    // Update counter
+    const secTitle = notesList.closest('.pnl-sec')?.querySelector('.pnl-sec-t');
+    if(secTitle){
+      const count = notesList.querySelectorAll('.note-entry').length;
+      secTitle.textContent = 'הערות ולוג (' + count + ')';
+    }
+  }
+  await logActivity(recordId, recordType, 'הערה נוספה');
   toast('הערה נשמרה ✓','s');
 }
 
 async function deleteNote(noteId, recordId){
   if(!confirm('למחוק הערה?'))return;
-  await getSB().from('notes').delete().eq('id',noteId);
-  _panelLoading=false; loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
+  const {error}=await getSB().from('notes').delete().eq('id',noteId);
+  if(error){toast('שגיאה','e');return;}
+  // Remove from DOM directly
+  const btn = document.querySelector('[onclick="deleteNote('+noteId+','+recordId+')"]');
+  const entry = btn?.closest('.note-entry');
+  if(entry){
+    const notesList = entry.closest('.notes-log');
+    entry.remove();
+    const count = notesList?.querySelectorAll('.note-entry').length||0;
+    const secTitle = notesList?.closest('.pnl-sec')?.querySelector('.pnl-sec-t');
+    if(secTitle) secTitle.textContent = 'הערות ולוג (' + count + ')';
+    if(count===0 && notesList) notesList.innerHTML='<div style="padding:8px 0;color:var(--text4);font-size:13px">אין הערות עדיין</div>';
+  }
+  toast('נמחק ✓','s');
 }
 
 function formatNoteDate(iso){
