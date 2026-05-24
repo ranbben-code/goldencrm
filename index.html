@@ -900,7 +900,7 @@ async function loadPanelExtras(id, tKey){
     taskAdd.innerHTML =
       '<input class="task-inp" id="taskInp" placeholder="משימה חדשה...">'+
       '<input class="task-date-inp" type="date" id="taskDate">'+
-      '<button class="note-add-btn" onclick="addTask('+id+',''+tKey+'')"><i class="ti ti-plus"></i></button>';
+      '<button class="note-add-btn" onclick="addTask('+id+',\"'+tKey+'\")"><i class="ti ti-plus"></i></button>';
     taskAdd.querySelector('#taskInp').onkeydown = e=>{if(e.key==='Enter')addTask(id,tKey);};
     tasksDiv.appendChild(tasksList);
     tasksDiv.appendChild(taskAdd);
@@ -929,7 +929,7 @@ async function loadPanelExtras(id, tKey){
     noteWrap.className = 'note-input-wrap';
     noteWrap.innerHTML =
       '<textarea class="notes-ta" id="noteInput" rows="3" placeholder="הוסף הערה חדשה..."></textarea>'+
-      '<button class="note-add-btn" id="noteAddBtn" onclick="addNote('+id+',''+tKey+'')"><i class="ti ti-send"></i> שמור הערה</button>';
+      '<button class="note-add-btn" id="noteAddBtn" onclick="addNote('+id+',"'+tKey+'")"><i class="ti ti-send"></i> שמור הערה</button>';
     notesDiv.appendChild(notesList);
     notesDiv.appendChild(noteWrap);
     scroll.appendChild(notesDiv);
@@ -966,8 +966,9 @@ function quickStatus(id, newStatus) {
     if (error) { toast('שגיאה בעדכון סטטוס','e'); return; }
     toast('סטטוס עודכן ✓','s');
     renderKPI(); renderMain();
-    // Re-open panel to refresh badge
-    openPanel(id);
+    // Update badge in panel without re-opening (prevents loop)
+    const badge = document.querySelector('.pnl-hd .pill');
+    if(badge){ badge.className='pill '+(CFG[tab]?.pmap?.[newStatus]||'p-new'); badge.textContent=newStatus; }
   });
 }
 
@@ -1244,15 +1245,15 @@ async function addNote(recordId, recordType){
   ta.value='';
   // Log activity
   await logActivity(recordId, recordType, `הערה נוספה`);
-  // Reload notes in panel
-  openPanel(recordId);
+  // Refresh only the extras section, not full panel
+  _panelLoading=false; loadPanelExtras(recordId, recordType);
   toast('הערה נשמרה ✓','s');
 }
 
 async function deleteNote(noteId, recordId){
   if(!confirm('למחוק הערה?'))return;
   await getSB().from('notes').delete().eq('id',noteId);
-  openPanel(recordId);
+  _panelLoading=false; loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
 }
 
 function formatNoteDate(iso){
@@ -1290,18 +1291,18 @@ async function addTask(recordId, recordType){
   const {data,error}=await getSB().from('tasks').insert({record_id:recordId,record_type:recordType,title,due_date:td?.value||null,done:false}).select();
   if(error){toast('שגיאה','e');return;}
   ti.value=''; if(td)td.value='';
-  openPanel(recordId);
+  _panelLoading=false; loadPanelExtras(recordId, tKey);
   toast('משימה נוספה ✓','s');
 }
 
 async function toggleTask(taskId, done, recordId){
   await getSB().from('tasks').update({done:!done}).eq('id',taskId);
-  openPanel(recordId);
+  _panelLoading=false; loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
 }
 
 async function deleteTask(taskId, recordId){
   await getSB().from('tasks').delete().eq('id',taskId);
-  openPanel(recordId);
+  _panelLoading=false; loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
 }
 
 // ════════════════════════════════════════
@@ -1319,12 +1320,12 @@ async function addTag(recordId, recordType){
   const {error}=await getSB().from('tags').insert({record_id:recordId,record_type:recordType,tag});
   if(error){toast('שגיאה','e');return;}
   inp.value='';
-  openPanel(recordId);
+  _panelLoading=false; loadPanelExtras(recordId, recordType);
 }
 
 async function deleteTag(tagId, recordId){
   await getSB().from('tags').delete().eq('id',tagId);
-  openPanel(recordId);
+  _panelLoading=false; loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
 }
 
 // ════════════════════════════════════════
