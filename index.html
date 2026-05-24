@@ -829,6 +829,129 @@ function openPanel(id){
   p.style.display='';
   p.classList.add('open');
   if(!['income','report'].includes(tab))renderMain();
+  // Load async panel data (notes/tasks/tags/activity)
+  loadPanelExtras(id, tab==='expenses'?'expenses':tab);
+}
+
+let _panelLoading = false;
+async function loadPanelExtras(id, tKey){
+  if(_panelLoading) return;
+  _panelLoading = true;
+  const p = document.getElementById('panel');
+  try {
+    let notes=[], tasks=[], tags=[], activity=[];
+    [notes, tasks, tags, activity] = await Promise.all([
+      loadNotes(id, tKey),
+      loadTasks(id, tKey),
+      loadTags(id, tKey),
+      loadActivity(id, tKey),
+    ]);
+    if(!p.classList.contains('open')){_panelLoading=false;return;}
+    const scroll = p.querySelector('.pnl-scroll');
+    if(!scroll){_panelLoading=false;return;}
+    // Remove old static notes section if present
+    scroll.querySelectorAll('.pnl-sec').forEach(s=>{
+      if(s.querySelector('.notes-ta')) s.remove();
+    });
+    // Remove any previously added extras
+    scroll.querySelectorAll('.panel-extra').forEach(s=>s.remove());
+
+    const today = new Date().toISOString().slice(0,10);
+
+    // TAGS
+    const tagsDiv = document.createElement('div');
+    tagsDiv.className = 'pnl-sec panel-extra';
+    tagsDiv.innerHTML = '<div class="pnl-sec-t">תגיות</div>';
+    const tagsWrap = document.createElement('div');
+    tagsWrap.className = 'tags-wrap';
+    tags.forEach(t => {
+      const chip = document.createElement('span');
+      chip.className = 'tag-chip'; chip.title = 'לחץ למחיקה';
+      chip.innerHTML = '<i class="ti ti-x"></i>' + t.tag;
+      chip.onclick = () => deleteTag(t.id, id);
+      tagsWrap.appendChild(chip);
+    });
+    const tagInp = document.createElement('input');
+    tagInp.className='tag-input'; tagInp.id='tagInp'; tagInp.placeholder='+ הוסף תגית';
+    tagInp.onkeydown = e=>{if(e.key==='Enter')addTag(id,tKey);};
+    tagsWrap.appendChild(tagInp);
+    tagsDiv.appendChild(tagsWrap);
+    scroll.appendChild(tagsDiv);
+
+    // TASKS
+    const tasksDiv = document.createElement('div');
+    tasksDiv.className = 'pnl-sec panel-extra';
+    tasksDiv.innerHTML = '<div class="pnl-sec-t">משימות (' + tasks.length + ')</div>';
+    const tasksList = document.createElement('div');
+    tasksList.className = 'notes-log';
+    tasks.forEach(t => {
+      const row = document.createElement('div');
+      row.className = 'task-item';
+      const isOverdue = t.due_date && t.due_date < today && !t.done;
+      row.innerHTML =
+        '<div class="task-check '+(t.done?'done':'')+'" onclick="toggleTask('+t.id+','+t.done+','+id+')">'+(t.done?'<i class="ti ti-check"></i>':'')+'</div>'+
+        '<span class="task-text '+(t.done?'done':'')+'">'+t.title+'</span>'+
+        (t.due_date?'<span class="task-due '+(isOverdue?'overdue':'')+'">'+(t.due_date.split('-').reverse().join('/'))+'</span>':'')+
+        '<button onclick="deleteTask('+t.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0"><i class="ti ti-trash"></i></button>';
+      tasksList.appendChild(row);
+    });
+    const taskAdd = document.createElement('div');
+    taskAdd.className = 'task-add-row';
+    taskAdd.innerHTML =
+      '<input class="task-inp" id="taskInp" placeholder="משימה חדשה...">'+
+      '<input class="task-date-inp" type="date" id="taskDate">'+
+      '<button class="note-add-btn" onclick="addTask('+id+',''+tKey+'')"><i class="ti ti-plus"></i></button>';
+    taskAdd.querySelector('#taskInp').onkeydown = e=>{if(e.key==='Enter')addTask(id,tKey);};
+    tasksDiv.appendChild(tasksList);
+    tasksDiv.appendChild(taskAdd);
+    scroll.appendChild(tasksDiv);
+
+    // NOTES
+    const notesDiv = document.createElement('div');
+    notesDiv.className = 'pnl-sec panel-extra';
+    notesDiv.innerHTML = '<div class="pnl-sec-t">הערות ולוג (' + notes.length + ')</div>';
+    const notesList = document.createElement('div');
+    notesList.className = 'notes-log';
+    if(notes.length){
+      notes.forEach(n=>{
+        const entry = document.createElement('div');
+        entry.className = 'note-entry';
+        entry.innerHTML =
+          '<div class="note-meta"><i class="ti ti-clock"></i>'+formatNoteDate(n.created_at)+
+          '<button onclick="deleteNote('+n.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0"><i class="ti ti-trash"></i></button></div>'+
+          '<div class="note-text">'+n.content.replace(/\n/g,'<br>')+'</div>';
+        notesList.appendChild(entry);
+      });
+    } else {
+      notesList.innerHTML='<div style="padding:8px 0;color:var(--text4);font-size:13px">אין הערות עדיין</div>';
+    }
+    const noteWrap = document.createElement('div');
+    noteWrap.className = 'note-input-wrap';
+    noteWrap.innerHTML =
+      '<textarea class="notes-ta" id="noteInput" rows="3" placeholder="הוסף הערה חדשה..."></textarea>'+
+      '<button class="note-add-btn" id="noteAddBtn" onclick="addNote('+id+',''+tKey+'')"><i class="ti ti-send"></i> שמור הערה</button>';
+    notesDiv.appendChild(notesList);
+    notesDiv.appendChild(noteWrap);
+    scroll.appendChild(notesDiv);
+
+    // ACTIVITY
+    if(activity.length){
+      const actDiv = document.createElement('div');
+      actDiv.className = 'pnl-sec panel-extra';
+      actDiv.innerHTML = '<div class="pnl-sec-t">היסטוריה</div>';
+      activity.forEach(a=>{
+        const row = document.createElement('div');
+        row.className = 'act-item';
+        row.innerHTML =
+          '<div class="act-dot"></div>'+
+          '<span class="act-text">'+a.action+'</span>'+
+          '<span class="act-time">'+formatNoteDate(a.created_at)+'</span>';
+        actDiv.appendChild(row);
+      });
+      scroll.appendChild(actDiv);
+    }
+  } catch(e){ console.warn('loadPanelExtras error:', e); }
+  _panelLoading = false;
 }
 
 function quickStatus(id, newStatus) {
@@ -1325,129 +1448,7 @@ async function renderDashboard(){
 // OVERRIDE openPanel — add notes/tasks/tags/activity
 // ════════════════════════════════════════
 
-const _origOpenPanel = openPanel;
-async function openPanel(id){
-  _origOpenPanel(id);
-  const p = document.getElementById('panel');
-  if(!p.classList.contains('open')) return;
-  const tKey = tab==='expenses'?'expenses':tab;
 
-  // Load all async data
-  let notes=[], tasks=[], tags=[], activity=[];
-  try {
-    [notes, tasks, tags, activity] = await Promise.all([
-      loadNotes(id, tKey),
-      loadTasks(id, tKey),
-      loadTags(id, tKey),
-      loadActivity(id, tKey),
-    ]);
-  } catch(e) { console.warn('Panel load error:', e); }
-
-  if(!p.classList.contains('open')) return;
-  const scroll = p.querySelector('.pnl-scroll');
-  if(!scroll) return;
-
-  // Remove old static notes section
-  const oldSecs = scroll.querySelectorAll('.pnl-sec');
-  oldSecs.forEach(s => { if(s.querySelector('.notes-ta')) s.remove(); });
-
-  // TAGS
-  const tagsDiv = document.createElement('div');
-  tagsDiv.className = 'pnl-sec';
-  tagsDiv.innerHTML = '<div class="pnl-sec-t">תגיות</div>';
-  const tagsWrap = document.createElement('div');
-  tagsWrap.className = 'tags-wrap';
-  tags.forEach(t => {
-    const chip = document.createElement('span');
-    chip.className = 'tag-chip';
-    chip.title = 'לחץ למחיקה';
-    chip.innerHTML = '<i class="ti ti-x"></i>' + t.tag;
-    chip.onclick = () => deleteTag(t.id, id);
-    tagsWrap.appendChild(chip);
-  });
-  const tagInp = document.createElement('input');
-  tagInp.className = 'tag-input'; tagInp.id = 'tagInp'; tagInp.placeholder = '+ הוסף תגית';
-  tagInp.onkeydown = e => { if(e.key==='Enter') addTag(id, tKey); };
-  tagsWrap.appendChild(tagInp);
-  tagsDiv.appendChild(tagsWrap);
-  scroll.appendChild(tagsDiv);
-
-  // TASKS
-  const today = new Date().toISOString().slice(0,10);
-  const tasksDiv = document.createElement('div');
-  tasksDiv.className = 'pnl-sec';
-  tasksDiv.innerHTML = '<div class="pnl-sec-t">משימות (' + tasks.length + ')</div>';
-  const tasksList = document.createElement('div');
-  tasksList.className = 'notes-log';
-  tasks.forEach(t => {
-    const row = document.createElement('div');
-    row.className = 'task-item';
-    const isOverdue = t.due_date && t.due_date < today && !t.done;
-    row.innerHTML =
-      '<div class="task-check ' + (t.done?'done':'') + '" onclick="toggleTask('+t.id+','+t.done+','+id+')">' +
-        (t.done?'<i class="ti ti-check"></i>':'') +
-      '</div>' +
-      '<span class="task-text ' + (t.done?'done':'') + '">' + t.title + '</span>' +
-      (t.due_date ? '<span class="task-due ' + (isOverdue?'overdue':'') + '">' + t.due_date.split('-').reverse().join('/') + '</span>' : '') +
-      '<button onclick="deleteTask('+t.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0"><i class="ti ti-trash"></i></button>';
-    tasksList.appendChild(row);
-  });
-  const taskAddRow = document.createElement('div');
-  taskAddRow.className = 'task-add-row';
-  taskAddRow.innerHTML =
-    '<input class="task-inp" id="taskInp" placeholder="משימה חדשה...">' +
-    '<input class="task-date-inp" type="date" id="taskDate">' +
-    '<button class="note-add-btn" onclick="addTask('+id+',\''+tKey+'\')"><i class="ti ti-plus"></i></button>';
-  taskAddRow.querySelector('#taskInp').onkeydown = e => { if(e.key==='Enter') addTask(id, tKey); };
-  tasksDiv.appendChild(tasksList);
-  tasksDiv.appendChild(taskAddRow);
-  scroll.appendChild(tasksDiv);
-
-  // NOTES
-  const notesDiv = document.createElement('div');
-  notesDiv.className = 'pnl-sec';
-  notesDiv.innerHTML = '<div class="pnl-sec-t">הערות ולוג (' + notes.length + ')</div>';
-  const notesList = document.createElement('div');
-  notesList.className = 'notes-log';
-  if(notes.length) {
-    notes.forEach(n => {
-      const entry = document.createElement('div');
-      entry.className = 'note-entry';
-      entry.innerHTML =
-        '<div class="note-meta"><i class="ti ti-clock"></i>' + formatNoteDate(n.created_at) +
-        '<button onclick="deleteNote('+n.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0"><i class="ti ti-trash"></i></button></div>' +
-        '<div class="note-text">' + n.content.replace(/\n/g,'<br>') + '</div>';
-      notesList.appendChild(entry);
-    });
-  } else {
-    notesList.innerHTML = '<div style="padding:8px 0;color:var(--text4);font-size:13px">אין הערות עדיין</div>';
-  }
-  const noteInputWrap = document.createElement('div');
-  noteInputWrap.className = 'note-input-wrap';
-  noteInputWrap.innerHTML =
-    '<textarea class="notes-ta" id="noteInput" rows="3" placeholder="הוסף הערה חדשה..."></textarea>' +
-    '<button class="note-add-btn" id="noteAddBtn" onclick="addNote('+id+',\''+tKey+'\')"><i class="ti ti-send"></i> שמור הערה</button>';
-  notesDiv.appendChild(notesList);
-  notesDiv.appendChild(noteInputWrap);
-  scroll.appendChild(notesDiv);
-
-  // ACTIVITY
-  if(activity.length) {
-    const actDiv = document.createElement('div');
-    actDiv.className = 'pnl-sec';
-    actDiv.innerHTML = '<div class="pnl-sec-t">היסטוריה</div>';
-    activity.forEach(a => {
-      const row = document.createElement('div');
-      row.className = 'act-item';
-      row.innerHTML =
-        '<div class="act-dot"></div>' +
-        '<span class="act-text">' + a.action + '</span>' +
-        '<span class="act-time">' + formatNoteDate(a.created_at) + '</span>';
-      actDiv.appendChild(row);
-    });
-    scroll.appendChild(actDiv);
-  }
-}
 
 async function loadFromCloud() {
   showLoader(true);
