@@ -284,6 +284,90 @@ tr:hover .td-acts{opacity:1}
 .mob-nav-item i{font-size:21px;color:var(--text3)}.mob-nav-item span{font-size:10px;font-weight:700;color:var(--text4)}
 .mob-nav-item.on i{color:var(--blue)}.mob-nav-item.on span{color:var(--blue)}
 .mob-content-pad{height:76px}
+
+/* ── DASHBOARD ── */
+.dashboard{padding:24px;display:flex;flex-direction:column;gap:20px}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.dash-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);padding:18px 20px;transition:all .18s;cursor:default}
+.dash-card:hover{border-color:var(--border2);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.dash-card-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.dash-card-title i{font-size:16px}
+.dash-big{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1}
+.dash-sub{font-size:12px;color:var(--text4);margin-top:5px;font-weight:500}
+.dash-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.dash-row:last-child{border-bottom:none}
+.dash-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ── NOTES LOG ── */
+.notes-log{display:flex;flex-direction:column;gap:0}
+.note-entry{padding:10px 0;border-bottom:1px solid var(--border)}
+.note-entry:last-child{border-bottom:none}
+.note-meta{font-size:11px;color:var(--text4);font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.note-meta i{font-size:12px}
+.note-text{font-size:13px;color:var(--text);line-height:1.55}
+.note-input-wrap{display:flex;flex-direction:column;gap:8px;padding:12px 0 0}
+.note-add-btn{background:var(--blue);color:#fff;border:none;border-radius:var(--r2);padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Figtree',sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s;align-self:flex-end}
+.note-add-btn:hover{background:#0062c4}
+
+/* ── TASKS ── */
+.task-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.task-item:last-child{border-bottom:none}
+.task-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.task-check.done{background:var(--green);border-color:var(--green)}
+.task-check.done i{color:#fff;font-size:11px}
+.task-text{flex:1;font-size:13px;color:var(--text);font-weight:500}
+.task-text.done{text-decoration:line-through;color:var(--text4)}
+.task-due{font-size:11px;color:var(--text4);font-weight:600}
+.task-due.overdue{color:var(--red)}
+.task-add-row{display:flex;gap:8px;padding-top:10px}
+.task-inp{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:7px 12px;color:var(--text);font-size:13px;font-family:'Figtree',sans-serif;flex:1;outline:none}
+.task-inp:focus{border-color:var(--blue)}
+.task-date-inp{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:7px 10px;color:var(--text);font-size:12px;font-family:'Figtree',sans-serif;outline:none;width:130px}
+.task-date-inp:focus{border-color:var(--blue)}
+
+/* ── TAGS ── */
+.tags-wrap{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 0}
+.tag-chip{display:inline-flex;align-items:center;gap:5px;background:var(--blue3);color:var(--blue);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer}
+.tag-chip:hover{background:#D0E8FF}
+.tag-chip i{font-size:11px}
+.tag-input{background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;font-family:'Figtree',sans-serif;outline:none;color:var(--text);width:120px}
+.tag-input:focus{border-color:var(--blue)}
+
+/* ── ACTIVITY LOG ── */
+.act-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;background:var(--blue3);border:2px solid var(--blue);flex-shrink:0;margin-top:3px}
+.act-text{color:var(--text2);flex:1;line-height:1.5}
+.act-time{color:var(--text4);font-weight:600;white-space:nowrap;font-size:11px}
+
+/* ── GLOBAL SEARCH ── */
+.gsearch-wrap{position:relative}
+.gsearch-results{position:absolute;top:calc(100% + 6px);right:0;width:380px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);box-shadow:var(--shadow-lg);z-index:500;max-height:400px;overflow-y:auto;display:none}
+.gsearch-results.open{display:block}
+.gsearch-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:10px}
+.gsearch-item:hover{background:var(--bg)}
+.gsearch-item:last-child{border-bottom:none}
+.gsearch-type{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.gsearch-name{font-size:13.5px;font-weight:600;color:var(--text)}
+.gsearch-sub{font-size:11.5px;color:var(--text4)}
+.gsearch-empty{padding:20px;text-align:center;color:var(--text4);font-size:13px}
+
+/* ── ROW COLORS ── */
+.tbl-row-won td:first-child{border-right:3px solid var(--green)!important}
+.tbl-row-lost td:first-child{border-right:3px solid var(--red)!important}
+.tbl-row-proposal td:first-child{border-right:3px solid var(--orange)!important}
+.tbl-row-negotiation td:first-child{border-right:3px solid #EED060!important}
+.tbl-row-contact td:first-child{border-right:3px solid var(--purple)!important}
+.tbl-row-vip td:first-child{border-right:3px solid var(--orange)!important}
+.tbl-row-done td:first-child{border-right:3px solid var(--green)!important}
+.tbl-row-active td:first-child{border-right:3px solid var(--blue)!important}
+
+@media(max-width:768px){
+  .gsearch-results{width:280px}
+  .dash-2col{grid-template-columns:1fr}
+  .task-add-row{flex-wrap:wrap}
+  .task-date-inp{width:100%}
+}
 </style>
 </head>
 <body>
@@ -291,7 +375,9 @@ tr:hover .td-acts{opacity:1}
 <aside class="sb" id="sb">
   <div class="sb-top"><div class="sb-logo"><div class="sb-mark">G</div><span class="sb-name">Golden<span>CRM</span></span></div><button class="mini-btn" onclick="toggleSb()"><i class="ti ti-layout-sidebar"></i></button></div>
   <nav class="sb-nav">
-    <div class="sb-sec">ניהול</div>
+    <div class="sb-sec">ראשי</div>
+    <button class="sb-item" onclick="goMob('dashboard')" id="t-dashboard"><i class="ti ti-layout-dashboard"></i><span>דשבורד</span></button>
+    <div class="sb-sec" style="margin-top:4px">ניהול</div>
     <button class="sb-item on" onclick="goMob('leads')" id="t-leads"><i class="ti ti-users"></i><span>לידים</span></button>
     <button class="sb-item" onclick="goMob('projects')" id="t-projects"><i class="ti ti-briefcase"></i><span>פרויקטים</span></button>
     <button class="sb-item" onclick="goMob('clients')" id="t-clients"><i class="ti ti-building"></i><span>לקוחות</span></button>
@@ -307,7 +393,11 @@ tr:hover .td-acts{opacity:1}
     <span class="hdr-title" id="hdrTitle">לידים</span>
     <span class="hdr-badge" id="hdrBadge">0</span>
     <div class="spacer"></div>
-    <div class="search-wrap" id="searchArea"><i class="ti ti-search"></i><input class="search-inp" type="text" placeholder="חיפוש..." id="searchInp" oninput="renderMain()"></div>
+    <div class="gsearch-wrap" id="searchArea">
+      <div class="search-wrap"><i class="ti ti-search"></i><input class="search-inp" id="gsearchInp" type="text" placeholder="חיפוש גלובלי..." oninput="globalSearch(this.value)" autocomplete="off"></div>
+      <div class="gsearch-results" id="gsearchResults"></div>
+    </div>
+    <div class="search-wrap" id="tabSearchArea" style="display:none"><i class="ti ti-search"></i><input class="search-inp" type="text" placeholder="חיפוש..." id="searchInp" oninput="renderMain()"></div>
     <button class="btn btn-icon" onclick="loadFromCloud()" title="רענן"><i class="ti ti-refresh"></i></button>
     <button class="btn btn-icon" onclick="exportToCSV()" title="ייצוא ל-Sheets" style="display:var(--export-btn-display,flex)"><i class="ti ti-table-export"></i></button>
     <button class="btn btn-blue" id="addBtn" onclick="openAdd()"><i class="ti ti-plus"></i><span id="addLbl">הוסף ליד</span></button>
@@ -320,6 +410,7 @@ tr:hover .td-acts{opacity:1}
 <div class="panel" id="panel"></div>
 </div>
 <nav class="mob-nav" id="mobNav">
+  <button class="mob-nav-item" onclick="goMob('dashboard')" id="m-dashboard"><i class="ti ti-layout-dashboard"></i><span>בית</span></button>
   <button class="mob-nav-item on" onclick="goMob('leads')" id="m-leads"><i class="ti ti-users"></i><span>לידים</span></button>
   <button class="mob-nav-item" onclick="goMob('projects')" id="m-projects"><i class="ti ti-briefcase"></i><span>פרויקטים</span></button>
   <button class="mob-nav-item" onclick="goMob('clients')" id="m-clients"><i class="ti ti-building"></i><span>לקוחות</span></button>
@@ -402,6 +493,19 @@ function mlabel(k){if(!k)return'';const p=k.split('-');return HEM[parseInt(p[1])
 function toggleSb(){document.getElementById('sb').classList.toggle('mini')}
 function go(t){
   tab=t;sId=null;eId=null;
+  // Dashboard special case
+  if(t==='dashboard'){
+    document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('on'));
+    const sb2=document.getElementById('t-dashboard');if(sb2)sb2.classList.add('on');
+    document.getElementById('hdrTitle').textContent='דשבורד';
+    document.getElementById('addBtn').style.display='none';
+    document.getElementById('searchArea').style.display='none';
+    document.getElementById('tabSearchArea').style.display='none';
+    const p=document.getElementById('panel');p.classList.remove('open');p.innerHTML='';
+    ['kpiArea','boardHdrArea','mainArea'].forEach(id=>document.getElementById(id).innerHTML='');
+    renderDashboard();
+    return;
+  }
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('on'));
   document.getElementById('t-'+t).classList.add('on');
   document.getElementById('hdrTitle').textContent=CFG[t].label;
@@ -410,7 +514,8 @@ function go(t){
   const noAdd=['income','report'].includes(t);
   aBtn.style.display=noAdd?'none':'inline-flex';
   aBtn.className='btn '+(t==='expenses'?'btn-red':'btn-blue');
-  document.getElementById('searchArea').style.display=['income','report'].includes(t)?'none':'flex';
+  document.getElementById('searchArea').style.display='flex';
+  document.getElementById('tabSearchArea').style.display=['income','report'].includes(t)?'none':'flex';
   const expBtn = document.querySelector('[onclick="exportToCSV()"]');
   if (expBtn) expBtn.style.display = ['income','report'].includes(t) ? 'none' : 'flex';
   const p=document.getElementById('panel');p.classList.remove('open');p.innerHTML='';
@@ -621,7 +726,9 @@ function mkTable(items){
     const pc=CFG[tab].pmap[it.status]||'p-new';const priCl=it.priority==='גבוהה'?'ph':it.priority==='בינונית'?'pm':'pl';
     const c4=tab==='projects'?`<div style="display:flex;align-items:center;gap:8px"><div class="prog-track"><div class="prog-fill" style="width:${it.progress||0}%"></div></div><span style="font-size:12px;font-weight:600;color:var(--text2)">${it.progress||0}%</span></div>`:`<span style="font-weight:800;color:var(--blue)">${it.value?fmt(Math.round(it.value*1.18)):'—'}</span>`;
     const c5=tab==='clients'?(it.contact||'—'):(it.date?it.date.split('-').reverse().join('/'):'—');const c6=tab==='clients'?(it.city||'—'):(it.owner||'—');
-    return`<tr onclick="openPanel(${it.id})" class="${sId===it.id?'sel':''}"><td><div class="av-wrap"><div class="av" style="background:${avc(i)[0]};color:${avc(i)[1]}">${ini(it.name)}</div><div><div class="cell-main">${it.name}</div><div class="cell-sub">${it.company||''}</div></div></div></td><td><span class="pill ${pc}">${it.status}</span></td><td>${c4}</td><td style="color:var(--text2);font-size:13px;font-weight:500">${c5}</td><td style="color:var(--text2);font-size:13px;font-weight:500">${c6}</td>${tab==='leads'?`<td><div class="prio-chip"><span class="pd ${priCl}"></span>${it.priority||'—'}</div></td>`:''}<td><div class="td-acts"><button class="btn btn-icon" style="width:28px;height:28px;padding:0;justify-content:center" onclick="event.stopPropagation();openEdit(${it.id})"><i class="ti ti-pencil" style="font-size:14px"></i></button><button class="btn btn-icon" style="width:28px;height:28px;padding:0;justify-content:center;color:var(--red)" onclick="event.stopPropagation();del(${it.id})"><i class="ti ti-trash" style="font-size:14px"></i></button></div></td></tr>`;
+    const rowColorMap={'נסגר - הכנסה':'tbl-row-won','נסגר - הפסד':'tbl-row-lost','הצעת מחיר':'tbl-row-proposal','משא ומתן':'tbl-row-negotiation','יצירת קשר':'tbl-row-contact','VIP':'tbl-row-vip','הושלם':'tbl-row-done','בביצוע':'tbl-row-active','פעיל':'tbl-row-active'};
+    const rowCls=rowColorMap[it.status]||'';
+    return`<tr onclick="openPanel(${it.id})" class="${sId===it.id?'sel':''} ${rowCls}"><td><div class="av-wrap"><div class="av" style="background:${avc(i)[0]};color:${avc(i)[1]}">${ini(it.name)}</div><div><div class="cell-main">${it.name}</div><div class="cell-sub">${it.company||''}</div></div></div></td><td><span class="pill ${pc}">${it.status}</span></td><td>${c4}</td><td style="color:var(--text2);font-size:13px;font-weight:500">${c5}</td><td style="color:var(--text2);font-size:13px;font-weight:500">${c6}</td>${tab==='leads'?`<td><div class="prio-chip"><span class="pd ${priCl}"></span>${it.priority||'—'}</div></td>`:''}<td><div class="td-acts"><button class="btn btn-icon" style="width:28px;height:28px;padding:0;justify-content:center" onclick="event.stopPropagation();openEdit(${it.id})"><i class="ti ti-pencil" style="font-size:14px"></i></button><button class="btn btn-icon" style="width:28px;height:28px;padding:0;justify-content:center;color:var(--red)" onclick="event.stopPropagation();del(${it.id})"><i class="ti ti-trash" style="font-size:14px"></i></button></div></td></tr>`;
   }).join('');
   return`<div style="background:var(--white);border-top:1px solid var(--border)"><div class="board-wrap"><table class="board-tbl" dir="rtl"><thead><tr><th>שם</th><th>סטטוס</th><th>${h4}</th><th>${h5}</th><th>${h6}</th>${tab==='leads'?'<th>עדיפות</th>':''}<th style="width:80px"></th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="${tab==='leads'?7:6}">${items.length} רשומות</td></tr></tfoot></table></div></div>`;
 }
@@ -946,6 +1053,371 @@ function exportToCSV() {
   a.click();
   URL.revokeObjectURL(url);
   toast('הקובץ הורד — גרור ל-Google Sheets ✓', 's');
+}
+
+
+// ════════════════════════════════════════
+// GLOBAL SEARCH
+// ════════════════════════════════════════
+function globalSearch(q){
+  const res=document.getElementById('gsearchResults');
+  if(!q||q.length<2){res.classList.remove('open');return;}
+  const qL=q.toLowerCase();
+  const results=[];
+  const tabs=[
+    {key:'leads',label:'ליד',cls:'b-contact'},
+    {key:'projects',label:'פרויקט',cls:'b-active'},
+    {key:'clients',label:'לקוח',cls:'b-vip'},
+  ];
+  tabs.forEach(({key,label,cls})=>{
+    (D[key]||[]).forEach(it=>{
+      if((it.name||'').toLowerCase().includes(qL)||(it.company||'').toLowerCase().includes(qL)||(it.phone||'').includes(qL)){
+        results.push({...it,_tab:key,_label:label,_cls:cls});
+      }
+    });
+  });
+  if(!results.length){
+    res.innerHTML='<div class="gsearch-empty">לא נמצאו תוצאות</div>';
+  } else {
+    res.innerHTML=results.slice(0,10).map(it=>`
+      <div class="gsearch-item" onclick="goToRecord('${it._tab}',${it.id})">
+        <span class="pill ${it._cls} gsearch-type">${it._label}</span>
+        <div><div class="gsearch-name">${it.name}</div><div class="gsearch-sub">${it.company||it.status||''}</div></div>
+        ${it.value?`<span style="font-size:12px;color:var(--blue);font-weight:700;margin-right:auto">${fmt(Math.round(it.value*1.18))}</span>`:''}
+      </div>`).join('');
+  }
+  res.classList.add('open');
+}
+
+function goToRecord(tabKey, id){
+  document.getElementById('gsearchResults').classList.remove('open');
+  document.getElementById('gsearchInp').value='';
+  go(tabKey);
+  renderBoardHdr(); renderMain();
+  setTimeout(()=>openPanel(id),100);
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.gsearch-wrap'))
+    document.getElementById('gsearchResults')?.classList.remove('open');
+});
+
+// ════════════════════════════════════════
+// NOTES LOG
+// ════════════════════════════════════════
+async function loadNotes(recordId, recordType){
+  const {data,error}=await getSB().from('notes').select('*').eq('record_id',recordId).eq('record_type',recordType).order('created_at',{ascending:false});
+  return error?[]:data;
+}
+
+async function addNote(recordId, recordType){
+  const ta=document.getElementById('noteInput');
+  const content=ta?.value.trim();
+  if(!content){toast('כתוב הערה קודם','e');return;}
+  const btn=document.getElementById('noteAddBtn');
+  if(btn)btn.disabled=true;
+  const {data,error}=await getSB().from('notes').insert({record_id:recordId,record_type:recordType,content}).select();
+  if(error){toast('שגיאה בשמירת הערה','e');if(btn)btn.disabled=false;return;}
+  ta.value='';
+  // Log activity
+  await logActivity(recordId, recordType, `הערה נוספה`);
+  // Reload notes in panel
+  openPanel(recordId);
+  toast('הערה נשמרה ✓','s');
+}
+
+async function deleteNote(noteId, recordId){
+  if(!confirm('למחוק הערה?'))return;
+  await getSB().from('notes').delete().eq('id',noteId);
+  openPanel(recordId);
+}
+
+function formatNoteDate(iso){
+  if(!iso)return'';
+  const d=new Date(iso);
+  const pad=n=>String(n).padStart(2,'0');
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ════════════════════════════════════════
+// ACTIVITY LOG
+// ════════════════════════════════════════
+async function logActivity(recordId, recordType, action){
+  await getSB().from('activity_log').insert({record_id:recordId,record_type:recordType,action});
+}
+
+async function loadActivity(recordId, recordType){
+  const {data,error}=await getSB().from('activity_log').select('*').eq('record_id',recordId).eq('record_type',recordType).order('created_at',{ascending:false}).limit(10);
+  return error?[]:data;
+}
+
+// ════════════════════════════════════════
+// TASKS
+// ════════════════════════════════════════
+async function loadTasks(recordId, recordType){
+  const {data,error}=await getSB().from('tasks').select('*').eq('record_id',recordId).eq('record_type',recordType).order('created_at');
+  return error?[]:data;
+}
+
+async function addTask(recordId, recordType){
+  const ti=document.getElementById('taskInp');
+  const td=document.getElementById('taskDate');
+  const title=ti?.value.trim();
+  if(!title){toast('כתוב משימה','e');return;}
+  const {data,error}=await getSB().from('tasks').insert({record_id:recordId,record_type:recordType,title,due_date:td?.value||null,done:false}).select();
+  if(error){toast('שגיאה','e');return;}
+  ti.value=''; if(td)td.value='';
+  openPanel(recordId);
+  toast('משימה נוספה ✓','s');
+}
+
+async function toggleTask(taskId, done, recordId){
+  await getSB().from('tasks').update({done:!done}).eq('id',taskId);
+  openPanel(recordId);
+}
+
+async function deleteTask(taskId, recordId){
+  await getSB().from('tasks').delete().eq('id',taskId);
+  openPanel(recordId);
+}
+
+// ════════════════════════════════════════
+// TAGS
+// ════════════════════════════════════════
+async function loadTags(recordId, recordType){
+  const {data,error}=await getSB().from('tags').select('*').eq('record_id',recordId).eq('record_type',recordType);
+  return error?[]:data;
+}
+
+async function addTag(recordId, recordType){
+  const inp=document.getElementById('tagInp');
+  const tag=inp?.value.trim();
+  if(!tag)return;
+  const {error}=await getSB().from('tags').insert({record_id:recordId,record_type:recordType,tag});
+  if(error){toast('שגיאה','e');return;}
+  inp.value='';
+  openPanel(recordId);
+}
+
+async function deleteTag(tagId, recordId){
+  await getSB().from('tags').delete().eq('id',tagId);
+  openPanel(recordId);
+}
+
+// ════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════
+async function renderDashboard(){
+  document.getElementById('kpiArea').innerHTML='';
+  document.getElementById('boardHdrArea').innerHTML='';
+  document.getElementById('mainArea').innerHTML='';
+  document.getElementById('pageArea').innerHTML='<div style="padding:40px;text-align:center"><div style="width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px"></div><div style="color:var(--text4);font-size:14px;font-weight:600">טוען דשבורד...</div></div>';
+  document.getElementById('hdrBadge').textContent='';
+
+  // Load tasks for dashboard
+  const {data:allTasks}=await getSB().from('tasks').select('*').eq('done',false).order('due_date');
+  const tasks=allTasks||[];
+
+  const leads=D.leads||[];
+  const clients=D.clients||[];
+  const expenses=D.expenses||[];
+  const projects=D.projects||[];
+
+  const wonLeads=leads.filter(i=>i.status==='נסגר - הכנסה');
+  const totalIncome=wonLeads.reduce((a,i)=>a+(i.value||0),0);
+  const totalExp=expenses.reduce((a,i)=>a+(i.value||0),0);
+  const profit=totalIncome-totalExp;
+
+  const today=new Date();
+  const thisMonth=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+  const monthIncome=wonLeads.filter(i=>i.date&&i.date.startsWith(thisMonth)).reduce((a,i)=>a+(i.value||0),0);
+  const monthExp=expenses.filter(i=>i.date&&i.date.startsWith(thisMonth)).reduce((a,i)=>a+(i.value||0),0);
+
+  const openLeads=leads.filter(i=>!['נסגר - הפסד','נסגר - הכנסה'].includes(i.status));
+  const activeClients=clients.filter(i=>['פעיל','VIP'].includes(i.status));
+  const pendingBalance=leads.filter(i=>i.deposit>0).reduce((a,i)=>a+Math.max(0,Math.round((i.value||0)*1.18)-(i.deposit||0)),0);
+
+  const todayStr=today.toISOString().slice(0,10);
+  const overdueTasks=tasks.filter(t=>t.due_date&&t.due_date<todayStr);
+  const todayTasks=tasks.filter(t=>t.due_date===todayStr);
+  const upcomingTasks=tasks.filter(t=>t.due_date>todayStr).slice(0,5);
+
+  const recentLeads=leads.slice(-4).reverse();
+  const retainerClients=clients.filter(i=>i.retainer_plan);
+
+  document.getElementById('pageArea').innerHTML=`<div class="dashboard">
+
+    <!-- KPI ROW -->
+    <div class="dash-grid">
+      <div class="dash-card">
+        <div class="dash-card-title" style="color:var(--blue)"><i class="ti ti-users"></i>לידים פתוחים</div>
+        <div class="dash-big" style="color:var(--blue)">${openLeads.length}</div>
+        <div class="dash-sub">מתוך ${leads.length} סה"כ</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title" style="color:var(--green)"><i class="ti ti-trending-up"></i>הכנסות החודש</div>
+        <div class="dash-big" style="color:var(--green)">${fmt(Math.round(monthIncome*1.18))}</div>
+        <div class="dash-sub">לפני מע"מ: ${fmt(monthIncome)}</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title" style="color:var(--orange)"><i class="ti ti-clock"></i>יתרות לגבייה</div>
+        <div class="dash-big" style="color:var(--orange)">${fmt(pendingBalance)}</div>
+        <div class="dash-sub">${leads.filter(i=>i.deposit>0).length} לקוחות עם יתרה</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title" style="color:${profit>=0?'var(--green)':'var(--red)'}"><i class="ti ti-scale"></i>רווח גולמי</div>
+        <div class="dash-big" style="color:${profit>=0?'var(--green)':'var(--red)'}">${profit>=0?'+':''}${fmt(profit)}</div>
+        <div class="dash-sub">הוצאות החודש: ${fmt(monthExp)}</div>
+      </div>
+    </div>
+
+    <!-- TASKS + RECENT LEADS -->
+    <div class="dash-2col">
+
+      <!-- TASKS -->
+      <div class="dash-card">
+        <div class="dash-card-title"><i class="ti ti-checkbox" style="color:var(--blue)"></i>משימות
+          ${overdueTasks.length?`<span class="pill p-lost" style="font-size:10px;padding:2px 8px">${overdueTasks.length} באיחור</span>`:''}
+          ${todayTasks.length?`<span class="pill p-proposal" style="font-size:10px;padding:2px 8px">${todayTasks.length} להיום</span>`:''}
+        </div>
+        ${[...overdueTasks,...todayTasks,...upcomingTasks].slice(0,6).map(t=>{
+          const isOverdue=t.due_date&&t.due_date<todayStr;
+          const isToday=t.due_date===todayStr;
+          return`<div class="dash-row">
+            <span style="font-size:13px;color:var(--text)">${t.title}</span>
+            <span style="font-size:11px;font-weight:700;color:${isOverdue?'var(--red)':isToday?'var(--orange)':'var(--text4)'}">${t.due_date?t.due_date.split('-').reverse().join('/'):'ללא תאריך'}</span>
+          </div>`;
+        }).join('')||'<div style="padding:16px 0;text-align:center;color:var(--text4);font-size:13px">אין משימות פתוחות 🎉</div>'}
+      </div>
+
+      <!-- RECENT LEADS -->
+      <div class="dash-card">
+        <div class="dash-card-title"><i class="ti ti-users" style="color:var(--purple)"></i>לידים אחרונים</div>
+        ${recentLeads.map(it=>`<div class="dash-row" style="cursor:pointer" onclick="goToRecord('leads',${it.id})">
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">${it.name}</div><div style="font-size:11px;color:var(--text4)">${it.company||''}</div></div>
+          <span class="pill ${CFG.leads.pmap[it.status]||'p-new'}" style="font-size:10px">${it.status}</span>
+        </div>`).join('')||'<div style="padding:16px 0;text-align:center;color:var(--text4);font-size:13px">אין לידים</div>'}
+      </div>
+    </div>
+
+    <!-- RETAINER CLIENTS + OPEN PROJECTS -->
+    <div class="dash-2col">
+      <div class="dash-card">
+        <div class="dash-card-title"><i class="ti ti-refresh" style="color:var(--green)"></i>לקוחות ריטיינר (${retainerClients.length})</div>
+        ${retainerClients.map(it=>`<div class="dash-row" style="cursor:pointer" onclick="goToRecord('clients',${it.id})">
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">${it.name}</div><div style="font-size:11px;color:var(--text4)">${it.retainer_notes||''}</div></div>
+          <span class="pill p-done" style="font-size:10px">${it.retainer_plan}</span>
+        </div>`).join('')||'<div style="padding:16px 0;text-align:center;color:var(--text4);font-size:13px">אין לקוחות ריטיינר</div>'}
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title"><i class="ti ti-briefcase" style="color:var(--orange)"></i>פרויקטים פעילים</div>
+        ${projects.filter(i=>i.status==='בביצוע').map(it=>`<div class="dash-row" style="cursor:pointer" onclick="goToRecord('projects',${it.id})">
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">${it.name}</div><div style="font-size:11px;color:var(--text4)">${it.company||''}</div></div>
+          <div style="display:flex;align-items:center;gap:6px"><div class="prog-track" style="width:50px"><div class="prog-fill" style="width:${it.progress||0}%"></div></div><span style="font-size:11px;color:var(--text4)">${it.progress||0}%</span></div>
+        </div>`).join('')||'<div style="padding:16px 0;text-align:center;color:var(--text4);font-size:13px">אין פרויקטים פעילים</div>'}
+      </div>
+    </div>
+
+  </div>`;
+}
+
+// ════════════════════════════════════════
+// OVERRIDE openPanel — add notes/tasks/tags/activity
+// ════════════════════════════════════════
+const _origOpenPanel = openPanel;
+async function openPanel(id){
+  _origOpenPanel(id);
+  // Load async data after panel renders
+  const tKey = tab==='expenses'?'expenses':tab;
+  const [notes, tasks, tags, activity] = await Promise.all([
+    loadNotes(id, tKey),
+    loadTasks(id, tKey),
+    loadTags(id, tKey),
+    loadActivity(id, tKey),
+  ]);
+
+  const p = document.getElementById('panel');
+  if(!p.classList.contains('open')) return;
+
+  // ── TAGS SECTION ──
+  const tagsHtml = `<div class="pnl-sec">
+    <div class="pnl-sec-t">תגיות</div>
+    <div class="tags-wrap">
+      ${tags.map(t=>`<span class="tag-chip" onclick="deleteTag(${t.id},${id})" title="לחץ למחיקה"><i class="ti ti-x"></i>${t.tag}</span>`).join('')}
+      <input class="tag-input" id="tagInp" placeholder="+ הוסף תגית" onkeydown="if(event.key==='Enter')addTag(${id},'${tKey}')">
+    </div>
+  </div>`;
+
+  // ── TASKS SECTION ──
+  const today=new Date().toISOString().slice(0,10);
+  const tasksHtml = `<div class="pnl-sec">
+    <div class="pnl-sec-t">משימות (${tasks.length})</div>
+    <div class="notes-log">
+      ${tasks.map(t=>`<div class="task-item">
+        <div class="task-check ${t.done?'done':''}" onclick="toggleTask(${t.id},${t.done},${id})">
+          ${t.done?'<i class="ti ti-check"></i>':''}
+        </div>
+        <span class="task-text ${t.done?'done':''}">${t.title}</span>
+        ${t.due_date?`<span class="task-due ${t.due_date<today&&!t.done?'overdue':''}">${t.due_date.split('-').reverse().join('/')}</span>`:''}
+        <button onclick="deleteTask(${t.id},${id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0"><i class="ti ti-trash"></i></button>
+      </div>`).join('')}
+    </div>
+    <div class="task-add-row">
+      <input class="task-inp" id="taskInp" placeholder="משימה חדשה..." onkeydown="if(event.key==='Enter')addTask(${id},'${tKey}')">
+      <input class="task-date-inp" type="date" id="taskDate">
+      <button class="note-add-btn" onclick="addTask(${id},'${tKey}')"><i class="ti ti-plus"></i></button>
+    </div>
+  </div>`;
+
+  // ── NOTES SECTION ──
+  const notesHtml = `<div class="pnl-sec">
+    <div class="pnl-sec-t">הערות ולוג (${notes.length})</div>
+    <div class="notes-log">
+      ${notes.map(n=>`<div class="note-entry">
+        <div class="note-meta"><i class="ti ti-clock"></i>${formatNoteDate(n.created_at)}<button onclick="deleteNote(${n.id},${id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0"><i class="ti ti-trash"></i></button></div>
+        <div class="note-text">${n.content.replace(/\n/g,'<br>')}</div>
+      </div>`).join('')||'<div style="padding:8px 0;color:var(--text4);font-size:13px">אין הערות עדיין</div>'}
+    </div>
+    <div class="note-input-wrap">
+      <textarea class="notes-ta" id="noteInput" rows="3" placeholder="הוסף הערה חדשה..."></textarea>
+      <button class="note-add-btn" id="noteAddBtn" onclick="addNote(${id},'${tKey}')"><i class="ti ti-send"></i> שמור הערה</button>
+    </div>
+  </div>`;
+
+  // ── ACTIVITY SECTION ──
+  const actHtml = activity.length ? `<div class="pnl-sec">
+    <div class="pnl-sec-t">היסטוריה</div>
+    ${activity.map(a=>`<div class="act-item">
+      <div class="act-dot"></div>
+      <span class="act-text">${a.action}</span>
+      <span class="act-time">${formatNoteDate(a.created_at)}</span>
+    </div>`).join('')}
+  </div>` : '';
+
+  // Find pnl-scroll and append new sections before pnl-act
+  const scroll = p.querySelector('.pnl-scroll');
+  if(scroll){
+    // Remove old static notes textarea if exists
+    const oldNotes = scroll.querySelector('.pnl-sec:last-child');
+    if(oldNotes && oldNotes.querySelector('.notes-ta:not(#noteInput)')){
+      oldNotes.remove();
+    }
+    scroll.insertAdjacentHTML('beforeend', tagsHtml + tasksHtml + notesHtml + actHtml);
+  }
+}
+
+// ════════════════════════════════════════
+// OVERRIDE quickStatus — log activity
+// ════════════════════════════════════════
+const _origQuickStatus = quickStatus;
+async function quickStatus(id, newStatus){
+  const src = tab==='expenses'?D.expenses:(D[tab]||[]);
+  const it = src.find(i=>i.id===id);
+  const oldStatus = it?.status||'';
+  _origQuickStatus(id, newStatus);
+  if(oldStatus !== newStatus){
+    await logActivity(id, tab==='expenses'?'expenses':tab, `סטטוס שונה: "${oldStatus}" → "${newStatus}"`);
+  }
 }
 
 async function loadFromCloud() {
