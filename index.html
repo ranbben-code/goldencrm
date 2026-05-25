@@ -907,7 +907,7 @@ async function loadPanelExtras(id, tKey){
     noteWrap.className = 'note-input-wrap';
     noteWrap.innerHTML =
       '<textarea class="notes-ta" id="noteInput" rows="3" placeholder="הוסף הערה חדשה..."></textarea>'+
-      '<button class="note-add-btn" id="noteAddBtn" onclick="addNote('+id+',"'+tKey+'")"><i class="ti ti-send"></i> שמור הערה</button>';
+      '<button class="note-add-btn" id="noteAddBtn" onclick="addNote('+id+',\''+tKey+'\')"><i class="ti ti-send"></i> שמור הערה</button>';
     notesDiv.appendChild(notesList);
     notesDiv.appendChild(noteWrap);
     scroll.appendChild(notesDiv);
