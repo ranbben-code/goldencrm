@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#F6F7FB">
-<title>GoldenCRM</title>
+<title>GoldenCRM v1779628975</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
@@ -835,24 +835,17 @@ function openPanel(id){
 
 let _panelLoading = false;
 async function loadPanelExtras(id, tKey){
-  if(_panelLoading) return;
-  _panelLoading = true;
   const p = document.getElementById('panel');
-  const expectedId = id; // Store to check later
+  if(!p || !p.classList.contains('open')) return;
   try {
-    let notes=[], tasks=[], tags=[], activity=[];
-    [notes, tasks, tags, activity] = await Promise.all([
+    let notes=[], tasks=[];
+    [notes, tasks] = await Promise.all([
       loadNotes(id, tKey),
       loadTasks(id, tKey),
-      loadTags(id, tKey),
-      loadActivity(id, tKey),
     ]);
-    // Check panel is still open AND still showing same record
-    if(!p.classList.contains('open') || String(sId) !== String(expectedId)){
-      _panelLoading=false; return;
-    }
+    if(!p.classList.contains('open')) return;
     const scroll = p.querySelector('.pnl-scroll');
-    if(!scroll){ _panelLoading=false; return; }
+    if(!scroll) return;
 
     // Remove extras and old static notes
     scroll.querySelectorAll('.panel-extra').forEach(s=>s.remove());
@@ -861,26 +854,6 @@ async function loadPanelExtras(id, tKey){
     });
 
     const today = new Date().toISOString().slice(0,10);
-
-    // TAGS
-    const tagsDiv = document.createElement('div');
-    tagsDiv.className = 'pnl-sec panel-extra';
-    tagsDiv.innerHTML = '<div class="pnl-sec-t">תגיות</div>';
-    const tagsWrap = document.createElement('div');
-    tagsWrap.className = 'tags-wrap';
-    tags.forEach(t => {
-      const chip = document.createElement('span');
-      chip.className = 'tag-chip'; chip.title = 'לחץ למחיקה';
-      chip.innerHTML = '<i class="ti ti-x"></i>' + t.tag;
-      chip.onclick = () => deleteTag(t.id, id);
-      tagsWrap.appendChild(chip);
-    });
-    const tagInp = document.createElement('input');
-    tagInp.className='tag-input'; tagInp.id='tagInp'; tagInp.placeholder='+ הוסף תגית';
-    tagInp.onkeydown = e=>{if(e.key==='Enter')addTag(id,tKey);};
-    tagsWrap.appendChild(tagInp);
-    tagsDiv.appendChild(tagsWrap);
-    scroll.appendChild(tagsDiv);
 
     // TASKS
     const tasksDiv = document.createElement('div');
@@ -920,6 +893,7 @@ async function loadPanelExtras(id, tKey){
       notes.forEach(n=>{
         const entry = document.createElement('div');
         entry.className = 'note-entry';
+        entry.setAttribute('data-note-id', n.id);
         entry.innerHTML =
           '<div class="note-meta"><i class="ti ti-clock"></i>'+formatNoteDate(n.created_at)+
           '<button onclick="deleteNote('+n.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0" title="מחק הערה"><i class="ti ti-trash"></i></button></div>'+
@@ -938,24 +912,8 @@ async function loadPanelExtras(id, tKey){
     notesDiv.appendChild(noteWrap);
     scroll.appendChild(notesDiv);
 
-    // ACTIVITY
-    if(activity.length){
-      const actDiv = document.createElement('div');
-      actDiv.className = 'pnl-sec panel-extra';
-      actDiv.innerHTML = '<div class="pnl-sec-t">היסטוריה</div>';
-      activity.forEach(a=>{
-        const row = document.createElement('div');
-        row.className = 'act-item';
-        row.innerHTML =
-          '<div class="act-dot"></div>'+
-          '<span class="act-text">'+a.action+'</span>'+
-          '<span class="act-time">'+formatNoteDate(a.created_at)+'</span>';
-        actDiv.appendChild(row);
-      });
-      scroll.appendChild(actDiv);
-    }
+  
   } catch(e){ console.warn('loadPanelExtras error:', e); }
-  _panelLoading = false;
 }
 
 function quickStatus(id, newStatus) {
@@ -1257,11 +1215,13 @@ async function addNote(recordId, recordType){
   ta.value='';
   if(btn)btn.disabled=false;
   // Add note directly to DOM without reloading
-  const notesList = document.querySelector('.notes-log');
+  const notesSec = Array.from(document.querySelectorAll('.pnl-sec')).find(s => s.querySelector('#noteInput'));
+  const notesList = notesSec ? notesSec.querySelector('.notes-log') : null;
   if(notesList && data && data[0]){
     const n = data[0];
     const entry = document.createElement('div');
     entry.className = 'note-entry';
+    entry.setAttribute('data-note-id', n.id);
     entry.innerHTML =
       '<div class="note-meta"><i class="ti ti-clock"></i>'+formatNoteDate(n.created_at)+
       '<button onclick="deleteNote('+n.id+','+recordId+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0"><i class="ti ti-trash"></i></button></div>'+
@@ -1287,8 +1247,7 @@ async function deleteNote(noteId, recordId){
   const {error}=await getSB().from('notes').delete().eq('id',noteId);
   if(error){toast('שגיאה','e');return;}
   // Remove from DOM directly
-  const btn = document.querySelector('[onclick="deleteNote('+noteId+','+recordId+')"]');
-  const entry = btn?.closest('.note-entry');
+  const entry = document.querySelector('.note-entry[data-note-id="'+noteId+'"]');
   if(entry){
     const notesList = entry.closest('.notes-log');
     entry.remove();
