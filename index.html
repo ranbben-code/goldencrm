@@ -837,6 +837,11 @@ let _panelLoading = false;
 async function loadPanelExtras(id, tKey){
   const p = document.getElementById('panel');
   if(!p || !p.classList.contains('open')) return;
+  // Debounce: cancel previous pending load
+  if(window._lpeTimer) clearTimeout(window._lpeTimer);
+  await new Promise(r => { window._lpeTimer = setTimeout(r, 80); });
+  // After debounce, check panel still open and same record
+  if(!p.classList.contains('open') || sId != id) return;
   try {
     let notes=[], tasks=[];
     [notes, tasks] = await Promise.all([
@@ -877,7 +882,7 @@ async function loadPanelExtras(id, tKey){
     taskAdd.innerHTML =
       '<input class="task-inp" id="taskInp" placeholder="משימה חדשה...">'+
       '<input class="task-date-inp" type="date" id="taskDate">'+
-      '<button class="note-add-btn" onclick="addTask('+id+',"'+tKey+'")"><i class="ti ti-plus"></i></button>';
+      '<button class="note-add-btn" onclick="addTask('+id+',\''+tKey+'\')"><i class="ti ti-plus"></i></button>';
     taskAdd.querySelector('#taskInp').onkeydown = e=>{if(e.key==='Enter')addTask(id,tKey);};
     tasksDiv.appendChild(tasksList);
     tasksDiv.appendChild(taskAdd);
@@ -1294,18 +1299,18 @@ async function addTask(recordId, recordType){
   const {data,error}=await getSB().from('tasks').insert({record_id:recordId,record_type:recordType,title,due_date:td?.value||null,done:false}).select();
   if(error){toast('שגיאה','e');return;}
   ti.value=''; if(td)td.value='';
-  _panelLoading=false; loadPanelExtras(recordId, tKey);
+  loadPanelExtras(recordId, recordType);
   toast('משימה נוספה ✓','s');
 }
 
 async function toggleTask(taskId, done, recordId){
   await getSB().from('tasks').update({done:!done}).eq('id',taskId);
-  _panelLoading=false; loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
+  loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
 }
 
 async function deleteTask(taskId, recordId){
   await getSB().from('tasks').delete().eq('id',taskId);
-  _panelLoading=false; loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
+  loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
 }
 
 // ════════════════════════════════════════
@@ -1323,12 +1328,12 @@ async function addTag(recordId, recordType){
   const {error}=await getSB().from('tags').insert({record_id:recordId,record_type:recordType,tag});
   if(error){toast('שגיאה','e');return;}
   inp.value='';
-  _panelLoading=false; loadPanelExtras(recordId, recordType);
+  loadPanelExtras(recordId, recordType);
 }
 
 async function deleteTag(tagId, recordId){
   await getSB().from('tags').delete().eq('id',tagId);
-  _panelLoading=false; loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
+  loadPanelExtras(recordId, tab==='expenses'?'expenses':tab);
 }
 
 // ════════════════════════════════════════
