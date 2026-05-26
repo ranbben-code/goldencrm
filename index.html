@@ -815,9 +815,7 @@ function openPanel(id){
     </div></div>
     <div class="pnl-scroll">
       <div class="pnl-sec"><div class="pnl-sec-t">פרטים</div>${rows}</div>
-      <div class="pnl-sec"><div class="pnl-sec-t">הערות</div>
-        <textarea class="notes-ta" rows="4" placeholder="הוסף הערה..." onchange="saveNote(${it.id},this.value)">${it.notes||''}</textarea>
-      </div>
+      ${it.notes?`<div class="pnl-sec"><div class="pnl-sec-t">הערות כלליות</div><div style="font-size:13px;color:var(--text);line-height:1.6;padding:4px 0;white-space:pre-wrap">${it.notes}</div></div>`:''}
     </div>
     <div class="pnl-act" style="flex-wrap:wrap;gap:8px">
       <button class="btn ${tab==='expenses'?'btn-red':'btn-blue'}" style="flex:1" onclick="openEdit(${it.id})"><i class="ti ti-pencil"></i> ערוך</button>
@@ -837,88 +835,120 @@ let _panelLoading = false;
 async function loadPanelExtras(id, tKey){
   const p = document.getElementById('panel');
   if(!p || !p.classList.contains('open')) return;
-  // Debounce: cancel previous pending load
-  if(window._lpeTimer) clearTimeout(window._lpeTimer);
-  await new Promise(r => { window._lpeTimer = setTimeout(r, 80); });
-  // After debounce, check panel still open and same record
-  if(!p.classList.contains('open') || sId != id) return;
+  const scroll = p.querySelector('.pnl-scroll');
+  if(!scroll) return;
+
+  // Clear immediately before loading — no flicker
+  scroll.querySelectorAll('.panel-extra').forEach(s=>s.remove());
+
+  // Show loading placeholder
+  const placeholder = document.createElement('div');
+  placeholder.className = 'pnl-sec panel-extra';
+  placeholder.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text4);font-size:13px">טוען...</div>';
+  scroll.appendChild(placeholder);
+
+  let notes=[], tasks=[];
   try {
-    let notes=[], tasks=[];
     [notes, tasks] = await Promise.all([
       loadNotes(id, tKey),
       loadTasks(id, tKey),
     ]);
-    if(!p.classList.contains('open')) return;
-    const scroll = p.querySelector('.pnl-scroll');
-    if(!scroll) return;
+  } catch(e) {
+    console.warn('loadPanelExtras error:', e);
+  }
 
-    // Remove extras and old static notes
-    scroll.querySelectorAll('.panel-extra').forEach(s=>s.remove());
-    scroll.querySelectorAll('.pnl-sec').forEach(s=>{
-      if(s.querySelector('.notes-ta:not(#noteInput)')) s.remove();
+  // After load, verify panel still showing same record
+  if(!p.classList.contains('open') || sId != id) return;
+
+  // Remove placeholder and rebuild
+  scroll.querySelectorAll('.panel-extra').forEach(s=>s.remove());
+
+  const today = new Date().toISOString().slice(0,10);
+
+  // ── TASKS ──
+  const tasksDiv = document.createElement('div');
+  tasksDiv.className = 'pnl-sec panel-extra';
+  const tasksHeader = document.createElement('div');
+  tasksHeader.className = 'pnl-sec-t';
+  tasksHeader.textContent = 'משימות (' + tasks.length + ')';
+  tasksDiv.appendChild(tasksHeader);
+  const tasksList = document.createElement('div');
+  tasksList.className = 'notes-log';
+  tasks.forEach(t => {
+    const row = document.createElement('div');
+    row.className = 'task-item';
+    const isOverdue = t.due_date && t.due_date < today && !t.done;
+    row.innerHTML =
+      '<div class="task-check '+(t.done?'done':'')+'" onclick="toggleTask('+t.id+','+t.done+','+id+')">'+(t.done?'<i class="ti ti-check"></i>':'')+'</div>'+
+      '<span class="task-text '+(t.done?'done':'')+'">'+t.title+'</span>'+
+      (t.due_date?'<span class="task-due '+(isOverdue?'overdue':'')+'">'+t.due_date.split('-').reverse().join('/')+'</span>':'')+
+      '<button onclick="deleteTask('+t.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0"><i class="ti ti-trash"></i></button>';
+    tasksList.appendChild(row);
+  });
+  tasksDiv.appendChild(tasksList);
+  const taskAdd = document.createElement('div');
+  taskAdd.className = 'task-add-row';
+  const tKeyStr = String(tKey);
+  const ti = document.createElement('input');
+  ti.className='task-inp'; ti.id='taskInp'; ti.placeholder='משימה חדשה...';
+  ti.onkeydown = e => { if(e.key==='Enter') addTask(id, tKeyStr); };
+  const tdi = document.createElement('input');
+  tdi.type='date'; tdi.className='task-date-inp'; tdi.id='taskDate';
+  const tBtn = document.createElement('button');
+  tBtn.className='note-add-btn';
+  tBtn.innerHTML='<i class="ti ti-plus"></i>';
+  tBtn.onclick = () => addTask(id, tKeyStr);
+  taskAdd.appendChild(ti); taskAdd.appendChild(tdi); taskAdd.appendChild(tBtn);
+  tasksDiv.appendChild(taskAdd);
+  scroll.appendChild(tasksDiv);
+
+  // ── NOTES ──
+  const notesDiv = document.createElement('div');
+  notesDiv.className = 'pnl-sec panel-extra';
+  const notesHeader = document.createElement('div');
+  notesHeader.className = 'pnl-sec-t';
+  notesHeader.textContent = 'הערות (' + notes.length + ')';
+  notesDiv.appendChild(notesHeader);
+  const notesList = document.createElement('div');
+  notesList.className = 'notes-log';
+  if(notes.length){
+    notes.forEach(n => {
+      const entry = document.createElement('div');
+      entry.className = 'note-entry';
+      entry.setAttribute('data-note-id', n.id);
+      const meta = document.createElement('div');
+      meta.className = 'note-meta';
+      meta.innerHTML = '<i class="ti ti-clock"></i>' + formatNoteDate(n.created_at);
+      const delBtn = document.createElement('button');
+      delBtn.innerHTML = '<i class="ti ti-trash"></i>';
+      delBtn.style.cssText = 'background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0';
+      delBtn.onclick = () => deleteNote(n.id, id);
+      meta.appendChild(delBtn);
+      const text = document.createElement('div');
+      text.className = 'note-text';
+      text.innerHTML = n.content.replace(/\n/g,'<br>');
+      entry.appendChild(meta);
+      entry.appendChild(text);
+      notesList.appendChild(entry);
     });
-
-    const today = new Date().toISOString().slice(0,10);
-
-    // TASKS
-    const tasksDiv = document.createElement('div');
-    tasksDiv.className = 'pnl-sec panel-extra';
-    tasksDiv.innerHTML = '<div class="pnl-sec-t">משימות (' + tasks.length + ')</div>';
-    const tasksList = document.createElement('div');
-    tasksList.className = 'notes-log';
-    tasks.forEach(t => {
-      const row = document.createElement('div');
-      row.className = 'task-item';
-      const isOverdue = t.due_date && t.due_date < today && !t.done;
-      row.innerHTML =
-        '<div class="task-check '+(t.done?'done':'')+'" onclick="toggleTask('+t.id+','+t.done+','+id+')">'+(t.done?'<i class="ti ti-check"></i>':'')+'</div>'+
-        '<span class="task-text '+(t.done?'done':'')+'">'+t.title+'</span>'+
-        (t.due_date?'<span class="task-due '+(isOverdue?'overdue':'')+'">'+(t.due_date.split('-').reverse().join('/'))+'</span>':'')+
-        '<button onclick="deleteTask('+t.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0"><i class="ti ti-trash"></i></button>';
-      tasksList.appendChild(row);
-    });
-    const taskAdd = document.createElement('div');
-    taskAdd.className = 'task-add-row';
-    taskAdd.innerHTML =
-      '<input class="task-inp" id="taskInp" placeholder="משימה חדשה...">'+
-      '<input class="task-date-inp" type="date" id="taskDate">'+
-      '<button class="note-add-btn" onclick="addTask('+id+',\''+tKey+'\')"><i class="ti ti-plus"></i></button>';
-    taskAdd.querySelector('#taskInp').onkeydown = e=>{if(e.key==='Enter')addTask(id,tKey);};
-    tasksDiv.appendChild(tasksList);
-    tasksDiv.appendChild(taskAdd);
-    scroll.appendChild(tasksDiv);
-
-    // NOTES — always show all notes with timestamp
-    const notesDiv = document.createElement('div');
-    notesDiv.className = 'pnl-sec panel-extra';
-    notesDiv.innerHTML = '<div class="pnl-sec-t">הערות ולוג (' + notes.length + ')</div>';
-    const notesList = document.createElement('div');
-    notesList.className = 'notes-log';
-    if(notes.length){
-      notes.forEach(n=>{
-        const entry = document.createElement('div');
-        entry.className = 'note-entry';
-        entry.setAttribute('data-note-id', n.id);
-        entry.innerHTML =
-          '<div class="note-meta"><i class="ti ti-clock"></i>'+formatNoteDate(n.created_at)+
-          '<button onclick="deleteNote('+n.id+','+id+')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-right:auto;padding:0" title="מחק הערה"><i class="ti ti-trash"></i></button></div>'+
-          '<div class="note-text">'+n.content.replace(/\n/g,'<br>')+'</div>';
-        notesList.appendChild(entry);
-      });
-    } else {
-      notesList.innerHTML='<div style="padding:8px 0;color:var(--text4);font-size:13px">אין הערות עדיין</div>';
-    }
-    const noteWrap = document.createElement('div');
-    noteWrap.className = 'note-input-wrap';
-    noteWrap.innerHTML =
-      '<textarea class="notes-ta" id="noteInput" rows="3" placeholder="הוסף הערה חדשה..."></textarea>'+
-      '<button class="note-add-btn" id="noteAddBtn" onclick="addNote('+id+',\''+tKey+'\')"><i class="ti ti-send"></i> שמור הערה</button>';
-    notesDiv.appendChild(notesList);
-    notesDiv.appendChild(noteWrap);
-    scroll.appendChild(notesDiv);
-
-  
-  } catch(e){ console.warn('loadPanelExtras error:', e); }
+  } else {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'padding:8px 0;color:var(--text4);font-size:13px';
+    empty.textContent = 'אין הערות עדיין';
+    notesList.appendChild(empty);
+  }
+  notesDiv.appendChild(notesList);
+  const noteWrap = document.createElement('div');
+  noteWrap.className = 'note-input-wrap';
+  const nta = document.createElement('textarea');
+  nta.className='notes-ta'; nta.id='noteInput'; nta.rows=3; nta.placeholder='הוסף הערה חדשה...';
+  const nsb = document.createElement('button');
+  nsb.className='note-add-btn'; nsb.id='noteAddBtn';
+  nsb.innerHTML='<i class="ti ti-send"></i> שמור הערה';
+  nsb.onclick = () => addNote(id, tKeyStr);
+  noteWrap.appendChild(nta); noteWrap.appendChild(nsb);
+  notesDiv.appendChild(notesList); notesDiv.appendChild(noteWrap);
+  scroll.appendChild(notesDiv);
 }
 
 function quickStatus(id, newStatus) {
@@ -1240,10 +1270,9 @@ async function addNote(recordId, recordType){
     const secTitle = notesList.closest('.pnl-sec')?.querySelector('.pnl-sec-t');
     if(secTitle){
       const count = notesList.querySelectorAll('.note-entry').length;
-      secTitle.textContent = 'הערות ולוג (' + count + ')';
+      secTitle.textContent = 'הערות (' + count + ')';
     }
   }
-  await logActivity(recordId, recordType, 'הערה נוספה');
   toast('הערה נשמרה ✓','s');
 }
 
@@ -1258,7 +1287,7 @@ async function deleteNote(noteId, recordId){
     entry.remove();
     const count = notesList?.querySelectorAll('.note-entry').length||0;
     const secTitle = notesList?.closest('.pnl-sec')?.querySelector('.pnl-sec-t');
-    if(secTitle) secTitle.textContent = 'הערות ולוג (' + count + ')';
+    if(secTitle) secTitle.textContent = 'הערות (' + count + ')';
     if(count===0 && notesList) notesList.innerHTML='<div style="padding:8px 0;color:var(--text4);font-size:13px">אין הערות עדיין</div>';
   }
   toast('נמחק ✓','s');
